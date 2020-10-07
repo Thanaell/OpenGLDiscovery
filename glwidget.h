@@ -59,6 +59,7 @@
 #include "objecttodraw.h"
 #include <QTimer>
 #include <memory>
+#include "camera.h"
 
 QT_FORWARD_DECLARE_CLASS(QOpenGLShaderProgram)
 
@@ -78,6 +79,8 @@ public:
 
     void addObjectFromData(ObjectData data, ObjectType type);
     void addObject(std::shared_ptr<ObjectToDraw>);
+
+    void keyPressEvent(QKeyEvent * event) override;
 
 public slots:
     void cleanup();
@@ -102,14 +105,12 @@ private:
     QOpenGLShaderProgram * m_program = nullptr;
     static bool m_transparent;
     int m_nbObjects;
-    int m_coefLoc;
-    int m_transLoc;
-    int m_rotLoc;
     int m_modelMatLoc;
     int m_viewMatLoc;
     int m_projMatLoc;
     QTimer m_timer;
     int m_elapsed;
+    Camera * m_camera;
 
 
 };

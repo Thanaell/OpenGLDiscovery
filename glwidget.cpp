@@ -78,9 +78,11 @@ void GLWidget::addObject(std::shared_ptr<ObjectToDraw> object){
 }
 
 GLWidget::GLWidget(QWidget *parent)
-    : QOpenGLWidget(parent), m_coefLoc(-1), m_modelMatLoc(-1), m_viewMatLoc(-1),m_projMatLoc(-1), m_program(nullptr)
-    , m_rotLoc(-1), m_transLoc(-1)
+    : QOpenGLWidget(parent), m_modelMatLoc(-1), m_viewMatLoc(-1),m_projMatLoc(-1), m_program(nullptr)
+
 {
+    setFocusPolicy(Qt::FocusPolicy::StrongFocus);
+    m_camera=new Camera();
     m_elapsed=0;
     m_nbObjects=0;
     m_core = QSurfaceFormat::defaultFormat().profile() == QSurfaceFormat::CoreProfile;
@@ -103,7 +105,6 @@ GLWidget::GLWidget(QWidget *parent)
         object->setModelMatrix(pos,rand(),QVector3D(sign()*floatRand(),sign()*floatRand(),sign()*floatRand()));
         object->setRotation(rand()*100/RAND_MAX,QVector3D(floatRand(),floatRand(),floatRand()));
         addObject(object);
-        //qDebug()<<object->getModelMatrix();
         i++;
     }
 }
@@ -186,7 +187,8 @@ void GLWidget::initializeGL()
         setupVertexAttribs(object.second);
     }
     m_program->release();
-    m_timer.start(50);
+    int fps=100;
+    m_timer.start(1000/fps);
     QObject::connect(&m_timer, &QTimer::timeout, this, &GLWidget::mTimeOut);
 }
 
@@ -218,9 +220,7 @@ void GLWidget::paintGL()
         modelMatrix.translate(coefTrans*m_elapsed*m_objects[vao.first]->getTranslation());
         modelMatrix.rotate(m_objects[vao.first]->getAngle()*coefRot*m_elapsed, m_objects[vao.first]->getRotAxis());
 
-        QMatrix4x4 viewMatrix=QMatrix4x4();
-        viewMatrix.setToIdentity();
-        viewMatrix.translate(QVector3D(0,0,-4));
+        QMatrix4x4 viewMatrix=m_camera->getMatrix();
 
         QMatrix4x4 projMatrix=QMatrix4x4();
         projMatrix.setToIdentity();
@@ -243,4 +243,19 @@ void GLWidget::resizeGL(int width, int height)
 void GLWidget::mTimeOut(){
     m_elapsed+=1;
     update();
+}
+
+void GLWidget::keyPressEvent(QKeyEvent *event){
+    if (event->key()==Qt::Key::Key_D){
+        m_camera->moveRight(1);
+    }
+    if (event->key()==Qt::Key::Key_Q){
+        m_camera->moveLeft(1);
+    }
+    if (event->key()==Qt::Key::Key_Z){
+        m_camera->moveUp(1);
+    }
+    if (event->key()==Qt::Key::Key_S){
+        m_camera->moveDown(1);
+    }
 }
