@@ -18,12 +18,14 @@ public:
     static Game * instance();
     void run();
     void reactToKey(int key);
-    void currentShapeDown();
+    void moveCurrentShapeDown();
     void clearCurrentShape();
     void putCurrentShape();
     std::map<std::pair<int,int>,ShapeType> getGrid(){return m_grid;};
     int getGridHeight(){return m_gridHeight;};
     int getGridWidth(){return m_gridWidth;};
+    void moveCurrentShapeRight();
+    void moveCurrentShapeLeft();
 public slots:
     void tick();
 private:

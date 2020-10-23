@@ -120,28 +120,28 @@ void GLView::paintGL()
         QVector3D color;
         switch (m_game->getGrid()[vao.first]){
         case EMPTY:
-            color=QVector3D(1,1,1);
+            color=QVector3D(0.2,0.2,0.2);
             break;
         case T:
             color=QVector3D(1,0,1);
             break;
         case S:
-            color=QVector3D(0,0.3,0);
+            color=QVector3D(1,1,0);
             break;
         case L:
-            color=QVector3D(0,0,0.4);
+            color=QVector3D(0,1,1);
             break;
         case Z:
-            color=QVector3D(0.5,0,0.6);
+            color=QVector3D(1,0,0);
             break;
         case SQ:
-            color=QVector3D(0.7,0.8,0);
+            color=QVector3D(0,1,0);
             break;
         case IL:
-            color=QVector3D(0,0.9,1);
+            color=QVector3D(0,0,1);
             break;
         case Bar:
-            color=QVector3D(0,0,0);
+            color=QVector3D(1,1,1);
             break;
         }
 

@@ -16,25 +16,37 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    barshape.cpp \
     bottomshape.cpp \
     game.cpp \
     glsquare.cpp \
     glview.cpp \
+    ilshape.cpp \
+    lshape.cpp \
     main.cpp \
     mainwindow.cpp \
     movableshape.cpp \
     shape.cpp \
-    tshape.cpp
+    sqshape.cpp \
+    sshape.cpp \
+    tshape.cpp \
+    zshape.cpp
 
 HEADERS += \
+    barshape.h \
     bottomshape.h \
     game.h \
     glsquare.h \
     glview.h \
+    ilshape.h \
+    lshape.h \
     mainwindow.h \
     movableshape.h \
     shape.h \
-    tshape.h
+    sqshape.h \
+    sshape.h \
+    tshape.h \
+    zshape.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

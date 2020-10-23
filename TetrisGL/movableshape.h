@@ -2,6 +2,7 @@
 #define MOVABLESHAPE_H
 
 #include "shape.h"
+#include <memory>
 
 enum ShapeType{
     EMPTY,S,Z,L,IL,Bar,SQ,T
@@ -11,6 +12,7 @@ enum ShapeType{
 class MovableShape : public Shape
 {
 public:
+    static std::unique_ptr<MovableShape> createMovableShape();
     MovableShape(int size);
     void rotateClockwise();
     void rotateAntiClockwise();
