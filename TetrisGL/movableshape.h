@@ -15,6 +15,7 @@ public:
     void rotateClockwise();
     void rotateAntiClockwise();
     virtual ShapeType getType() const = 0;
+    virtual int getSize() const {return m_shapeSize;};
 
 protected:
     int m_shapeSize;

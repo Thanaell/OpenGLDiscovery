@@ -6,9 +6,13 @@ Game * Game::m_instance=nullptr;
 
 Game::Game() : m_timer(new QTimer)
 {
+    m_gridWidth=10;
+    m_gridHeight=50;
     m_currentShape=std::unique_ptr<MovableShape>(new TShape());
-    for (int i =0; i<30; i++){
-        for (int j=0; j<10; j++){
+    m_currentShapePos={(m_gridWidth-m_currentShape->getSize())/2,m_gridHeight-m_currentShape->getSize()-3};
+    putCurrentShape();
+    for (int i =0; i<m_gridHeight; i++){
+        for (int j=0; j<m_gridWidth; j++){
             m_grid[{i,j}]=ShapeType::EMPTY;
         }
     }
@@ -17,14 +21,14 @@ Game::Game() : m_timer(new QTimer)
 void Game::clearCurrentShape(){
     //removes shape from grid
     for (auto point : m_currentShape->getSquares()){
-        m_grid[{point.x(),point.y()}]=ShapeType::EMPTY;
+        m_grid[{m_currentShapePos.y()+point.y(),m_currentShapePos.x()+point.x()}]=ShapeType::EMPTY;
     }
 }
 
 void Game::putCurrentShape(){
     //replaces shape in grid
     for (auto point : m_currentShape->getSquares()){
-        m_grid[{point.x(),point.y()}]=m_currentShape->getType();
+        m_grid[{m_currentShapePos.y()+point.y(),m_currentShapePos.x()+point.x()}]=m_currentShape->getType();
     }
 }
 
@@ -46,7 +50,6 @@ void Game::currentShapeDown(){
 }
 
 void Game::tick(){
-    //qDebug()<<m_currentShapePos;
     currentShapeDown();
 }
 

@@ -18,6 +18,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     bottomshape.cpp \
     game.cpp \
+    glsquare.cpp \
     glview.cpp \
     main.cpp \
     mainwindow.cpp \
@@ -28,6 +29,7 @@ SOURCES += \
 HEADERS += \
     bottomshape.h \
     game.h \
+    glsquare.h \
     glview.h \
     mainwindow.h \
     movableshape.h \

@@ -9,6 +9,7 @@
 #include <QTimer>
 #include <memory>
 #include "game.h"
+#include "glsquare.h"
 
 QT_FORWARD_DECLARE_CLASS(QOpenGLShaderProgram)
 
@@ -44,17 +45,19 @@ protected:
 
 private:
     std::unique_ptr<Game> m_game;
-    void setupVertexAttribs();
+    void setupVertexAttribs(GLSquare);
     bool m_core;
     QOpenGLVertexArrayObject m_vao;
-    std::map<int, QOpenGLVertexArrayObject> m_vaos;
+    std::map<std::pair<int,int>, QOpenGLVertexArrayObject> m_vaos;
     QOpenGLShaderProgram * m_program = nullptr;
     static bool m_transparent;
     int m_modelMatLoc;
     int m_viewMatLoc;
     int m_projMatLoc;
+    int m_colorLoc;
     QTimer m_timer;
     int m_elapsed;
+    std::map<std::pair<int,int>,GLSquare> m_objects;
 };
 
 #endif

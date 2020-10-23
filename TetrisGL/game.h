@@ -21,11 +21,16 @@ public:
     void currentShapeDown();
     void clearCurrentShape();
     void putCurrentShape();
+    std::map<std::pair<int,int>,ShapeType> getGrid(){return m_grid;};
+    int getGridHeight(){return m_gridHeight;};
+    int getGridWidth(){return m_gridWidth;};
 public slots:
     void tick();
 private:
     Game();
     static Game * m_instance;
+    int m_gridHeight;
+    int m_gridWidth;
     std::map<std::pair<int,int>,ShapeType> m_grid;
     std::shared_ptr<MovableShape> m_currentShape;
     QPoint m_currentShapePos;

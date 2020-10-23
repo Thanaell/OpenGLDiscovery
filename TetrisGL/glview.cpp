@@ -12,6 +12,12 @@ GLView::GLView(std::unique_ptr<Game> game,QWidget *parent)
 {
     m_game=std::move(game);
     setFocusPolicy(Qt::FocusPolicy::StrongFocus);
+    for (int i =0; i<m_game->getGridHeight(); i++){
+        for (int j=0; j<m_game->getGridWidth(); j++){
+            m_objects[{i,j}]=GLSquare();
+            m_objects[{i,j}].translateModelMatrix(QVector3D(j,i,0));
+        }
+    }
 }
 
 GLView::~GLView()
@@ -26,7 +32,7 @@ QSize GLView::minimumSizeHint() const
 
 QSize GLView::sizeHint() const
 {
-    return QSize(1000, 1000);
+    return QSize(300, 1000);
 }
 
 void GLView::cleanup()
@@ -42,24 +48,20 @@ void GLView::cleanup()
 static const char *vertexShaderSource =
     "#version 150\n"
     "in vec3 vertex;\n"
-    "in vec3 color;\n"
-    "out vec3 colorF; \n"
     "uniform mat4 model;\n"
     "uniform mat4 view;\n"
     "uniform mat4 proj;\n"
-    "uniform float coef;\n"
     "void main()\n"
     "{\n"
     "   gl_Position = proj*view*model*vec4(vertex.xyz,1.0);\n"
-    "   colorF=vec3(color);\n"
     "}\n";
 
 static const char *fragmentShaderSource =
     "#version 150\n"
     "out vec4 FragColor;\n"
-    "in vec3 colorF;\n"
+    "uniform vec3 color;\n"
     "void main() {\n"
-    "   FragColor = vec4(colorF,1);\n"
+    "   FragColor = vec4(color,1);\n"
     "}\n";
 
 void GLView::initializeGL()
@@ -72,43 +74,37 @@ void GLView::initializeGL()
     m_program = new QOpenGLShaderProgram;
     m_program->addShaderFromSourceCode(QOpenGLShader::Vertex,vertexShaderSource);
     m_program->addShaderFromSourceCode(QOpenGLShader::Fragment,fragmentShaderSource);
-    m_program->bindAttributeLocation("color", 1);
-    m_program->bindAttributeLocation("vertex", 2);
+    m_program->bindAttributeLocation("vertex", 1);
 
     m_program->link();
     m_modelMatLoc = m_program->uniformLocation("model");
     m_viewMatLoc = m_program->uniformLocation("view");
     m_projMatLoc = m_program->uniformLocation("proj");
+    m_colorLoc=m_program->uniformLocation("color");
 
     m_program->bind();
-/*
+
     for (auto object : m_objects){
         m_vaos[object.first].create();
         QOpenGLVertexArrayObject::Binder vaoBinder(&m_vaos[object.first]);
-        object.second.get()->getVBO()->create();
-        object.second.get()->getVBO()->bind();
-        object.second.get()->getVBO()->allocate(object.second->const_data(),object.second->count()*sizeof(GLfloat)),
+        object.second.getVBO()->create();
+        object.second.getVBO()->bind();
+        object.second.getVBO()->allocate(object.second.const_data(),object.second.count()*sizeof (GLfloat));
         setupVertexAttribs(object.second);
     }
-    */
     m_program->release();
     int fps=100;
     m_timer.start(1000/fps);
     QObject::connect(&m_timer, &QTimer::timeout, this, &GLView::mTimeOut);
 }
 
-void GLView::setupVertexAttribs()
+void GLView::setupVertexAttribs(GLSquare square)
 {
-    /*
-    object.get()->getVBO()->bind();
+    square.getVBO()->bind();
     QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
-    f->glEnableVertexAttribArray(2);
-    f->glVertexAttribPointer(2,3, GL_FLOAT, GL_FALSE, 6*sizeof (GLfloat), nullptr);
     f->glEnableVertexAttribArray(1);
-    f->glVertexAttribPointer(1,3, GL_FLOAT, GL_FALSE, 6*sizeof (GLfloat), (void*)(3*sizeof(GLfloat)));
-    object.get()->getVBO()->release();
-    */
-
+    f->glVertexAttribPointer(1,3, GL_FLOAT, GL_FALSE, 3*sizeof (GLfloat), nullptr);
+    square.getVBO()->release();
 }
 
 void GLView::paintGL()
@@ -121,19 +117,50 @@ void GLView::paintGL()
 
         QOpenGLVertexArrayObject::Binder vaoBinder(&vao.second);
 
+        QVector3D color;
+        switch (m_game->getGrid()[vao.first]){
+        case EMPTY:
+            color=QVector3D(1,1,1);
+            break;
+        case T:
+            color=QVector3D(1,0,1);
+            break;
+        case S:
+            color=QVector3D(0,0.3,0);
+            break;
+        case L:
+            color=QVector3D(0,0,0.4);
+            break;
+        case Z:
+            color=QVector3D(0.5,0,0.6);
+            break;
+        case SQ:
+            color=QVector3D(0.7,0.8,0);
+            break;
+        case IL:
+            color=QVector3D(0,0.9,1);
+            break;
+        case Bar:
+            color=QVector3D(0,0,0);
+            break;
+        }
+
         QMatrix4x4 modelMatrix;
+        modelMatrix=m_objects[vao.first].getModelMatrix();
+        modelMatrix.scale(1);
 
         QMatrix4x4 viewMatrix;
 
         QMatrix4x4 projMatrix=QMatrix4x4();
         projMatrix.setToIdentity();
-        projMatrix.perspective(45,1,0.1,100);
+        projMatrix.ortho(-5,15,-10,60,-10,20);
 
         m_program->bind();
         m_program->setUniformValue(m_modelMatLoc, modelMatrix);
         m_program->setUniformValue(m_viewMatLoc, viewMatrix);
         m_program->setUniformValue(m_projMatLoc, projMatrix);
-        glDrawArrays(GL_TRIANGLES,0,36);
+        m_program->setUniformValue(m_colorLoc,color);
+        glDrawArrays(GL_TRIANGLES,0,6);
     }
     m_program->release();
 }
