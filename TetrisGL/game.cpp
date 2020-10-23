@@ -10,7 +10,7 @@ Game::Game() : m_timer(new QTimer)
     srand (static_cast <unsigned> (time(0)));
     m_gridWidth=10;
     m_gridHeight=50;
-    m_currentShape=std::unique_ptr<MovableShape>(new TShape());
+    m_currentShape=MovableShape::createMovableShape();
     m_currentShapePos={(m_gridWidth-m_currentShape->getSize())/2,m_gridHeight-m_currentShape->getSize()-3};
     putCurrentShape();
     for (int i =0; i<m_gridHeight; i++){
@@ -44,11 +44,14 @@ void Game::moveCurrentShapeRight(){
 
     //if no collisions
 
-    //moves shape down
-    clearCurrentShape();
-    m_currentShapePos.setX(m_currentShapePos.x()+1);
+    //moves shape right
+    clearCurrentShape();  
+    int rightMargin=m_gridWidth-m_currentShape->getSize()-1;
+    int test=m_currentShapePos.x()-m_currentShape->getRightSpace();
+    if(test<rightMargin){
+       m_currentShapePos.setX(m_currentShapePos.x()+1);
+    }
     putCurrentShape();
-
 }
 void Game::moveCurrentShapeLeft(){
     //TODO : check collisions with bottom shape
@@ -57,7 +60,11 @@ void Game::moveCurrentShapeLeft(){
 
     //moves shape down
     clearCurrentShape();
-    m_currentShapePos.setX(m_currentShapePos.x()-1);
+    int leftMargin=0;
+    int test=m_currentShapePos.x()+m_currentShape->getLeftSpace();
+    if(test>leftMargin){
+       m_currentShapePos.setX(m_currentShapePos.x()-1);
+    }
     putCurrentShape();
 
 }

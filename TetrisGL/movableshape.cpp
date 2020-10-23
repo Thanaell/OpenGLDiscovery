@@ -12,24 +12,57 @@ int intRand(int max){
     return rand()%max;
 }
 
+void MovableShape::updateEdgeSpaces(){
+    QPoint leftestPoint(100,0);
+    QPoint rightestPoint(0,0);
+    QPoint lowestPoint(0,100);
+    for (auto point : m_squares){
+        if (point.x()>rightestPoint.x()){
+            rightestPoint=point;
+        }
+        if (point.x()<leftestPoint.x()){
+            leftestPoint=point;
+        }
+        if (point.y()<lowestPoint.y()){
+            lowestPoint=point;
+        }
+    }
+    m_rightSpace=m_shapeSize-rightestPoint.x();
+    m_leftSpace=leftestPoint.x();
+    m_bottomSpace=lowestPoint.y();
+    auto test=2;
+}
+
 std::unique_ptr<MovableShape> MovableShape::createMovableShape(){
     int result=intRand(7);
+    MovableShape * shape=nullptr;
     switch (result) {
     case 0:
-        return std::unique_ptr<TShape>(new TShape());
+        shape=new TShape();
+        break;
     case 1:
-        return std::unique_ptr<LShape>(new LShape());
+        shape=new LShape();
+        break;
     case 2:
-        return std::unique_ptr<ILShape>(new ILShape());
+        shape=new ILShape();
+        break;
     case 3:
-        return std::unique_ptr<ZShape>(new ZShape());
+        shape=new ZShape();
+        break;
     case 4:
-        return std::unique_ptr<SShape>(new SShape());
+        shape=new SShape();
+        break;
     case 5:
-        return std::unique_ptr<SQShape>(new SQShape());
+        shape=new SQShape();
+        break;
     case 6:
-        return std::unique_ptr<BarShape>(new BarShape());
-    }
+        shape=new BarShape();
+        break;
+    default:
+        shape=new TShape();
+    };
+    shape->updateEdgeSpaces();
+    return std::unique_ptr<MovableShape>(shape);
 }
 
 MovableShape::MovableShape(int size):Shape(),m_shapeSize(size)
@@ -47,6 +80,7 @@ void MovableShape::rotateClockwise(){
         newSquares.push_back(point);
     }
     m_squares=newSquares;
+    updateEdgeSpaces();
 }
 
 void MovableShape::rotateAntiClockwise(){
@@ -59,4 +93,5 @@ void MovableShape::rotateAntiClockwise(){
         newSquares.push_back(point);
     }
      m_squares=newSquares;
+     updateEdgeSpaces();
 }
