@@ -9,6 +9,7 @@
 #include "movableshape.h"
 #include "bottomshape.h"
 #include "QTimer"
+#include <set>
 
 
 class Game : public QObject
@@ -26,6 +27,8 @@ public:
     int getGridWidth(){return m_gridWidth;};
     void moveCurrentShapeRight();
     void moveCurrentShapeLeft();
+    void checkLinesAndUpdate(std::set<int> lines);
+    void removeLine(int line);
 public slots:
     void tick();
 private:

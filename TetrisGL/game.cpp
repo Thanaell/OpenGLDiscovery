@@ -1,6 +1,7 @@
 #include "game.h"
 #include <QDebug>
 #include "tshape.h"
+#include <set>
 
 Game * Game::m_instance=nullptr;
 
@@ -70,6 +71,42 @@ void Game::moveCurrentShapeLeft(){
        m_currentShapePos.setX(m_currentShapePos.x()-1);
        putCurrentShape();
     }
+}
+
+void Game::checkLinesAndUpdate(std::set<int> lines){
+    qDebug()<<"hi";
+    std::map<int,int> elementsPerLine;
+    std::vector<int> linesToUpdate;
+    for (int i : lines){
+        elementsPerLine[i]=0;
+        for (int j=0; j<m_gridWidth; j++){
+            if (m_grid[{i,j}].first!=ShapeType::EMPTY){
+                elementsPerLine[i]++;
+            }
+        }
+    }
+    for (auto element : elementsPerLine){
+        qDebug()<<element.second<<" "<<m_gridWidth;
+        if (element.second==m_gridWidth){
+            linesToUpdate.push_back(element.first);
+        }
+    }
+    std::sort(linesToUpdate.begin(),linesToUpdate.end());
+    std::reverse(linesToUpdate.begin(),linesToUpdate.end());
+
+    for (auto line : linesToUpdate){
+        qDebug()<<"deleting line" <<line;
+        for (int i = line; i<m_gridHeight-1; i++){
+            for (int j=0; j<m_gridWidth; j++){
+                if (!m_grid[{i+1,j}].second){
+                    m_grid[{i,j}].first=m_grid[{i+1,j}].first;
+                    m_grid[{i,j}].second=false;
+                    qDebug()<<"shifting "<< m_grid.size();
+                }
+
+            }
+        }
+    }
 
 }
 void Game::moveCurrentShapeDown(){
@@ -88,10 +125,13 @@ void Game::moveCurrentShapeDown(){
         }
     }
     if (hasCollided){
+        std::set<int> lines;
         //set previous shape not moving
         for (auto square : previousShapeSquares){
             m_grid[{square.y(),square.x()}].second=false;
+            lines.insert(square.y());
         }
+        checkLinesAndUpdate(lines);
     }
     else{
         clearCurrentShape();

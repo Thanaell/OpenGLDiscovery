@@ -153,7 +153,7 @@ void GLView::paintGL()
 
         QMatrix4x4 projMatrix=QMatrix4x4();
         projMatrix.setToIdentity();
-        projMatrix.ortho(-5,15,-10,60,-10,20);
+        projMatrix.ortho(-5,15,-3,51,-10,20);
 
         m_program->bind();
         m_program->setUniformValue(m_modelMatLoc, modelMatrix);
