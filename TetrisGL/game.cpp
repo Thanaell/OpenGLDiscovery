@@ -15,7 +15,7 @@ Game::Game() : m_timer(new QTimer)
     putCurrentShape();
     for (int i =0; i<m_gridHeight; i++){
         for (int j=0; j<m_gridWidth; j++){
-            m_grid[{i,j}]=ShapeType::EMPTY;
+            m_grid[{i,j}].first=ShapeType::EMPTY;
         }
     }
     m_bottomShape=std::unique_ptr<BottomShape>(new BottomShape(m_gridWidth));
@@ -24,14 +24,15 @@ Game::Game() : m_timer(new QTimer)
 void Game::clearCurrentShape(){
     //removes shape from grid
     for (auto point : m_currentShape->getSquares()){
-        m_grid[{m_currentShapePos.y()+point.y(),m_currentShapePos.x()+point.x()}]=ShapeType::EMPTY;
+        m_grid[{m_currentShapePos.y()+point.y(),m_currentShapePos.x()+point.x()}].first=ShapeType::EMPTY;
     }
 }
 
 void Game::putCurrentShape(){
     //replaces shape in grid
     for (auto point : m_currentShape->getSquares()){
-        m_grid[{m_currentShapePos.y()+point.y(),m_currentShapePos.x()+point.x()}]=m_currentShape->getType();
+        m_grid[{m_currentShapePos.y()+point.y(),m_currentShapePos.x()+point.x()}].first=m_currentShape->getType();
+        m_grid[{m_currentShapePos.y()+point.y(),m_currentShapePos.x()+point.x()}].second=true;
     }
 }
 
@@ -41,62 +42,56 @@ void Game::run(){
 }
 
 void Game::moveCurrentShapeRight(){
-    //TODO : check collisions with bottom shape
-
-    //if no collisions
-
-    //moves shape right
-    clearCurrentShape();  
-    int rightMargin=m_gridWidth-m_currentShape->getSize()-1;
-    int test=m_currentShapePos.x()-m_currentShape->getRightSpace();
-    if(test<rightMargin){
-       m_currentShapePos.setX(m_currentShapePos.x()+1);
+    auto squares=m_currentShape->getAbsoluteSquares(m_currentShapePos);
+    bool hasCollided=false;
+    for (auto square : squares){
+        if (square.x()==m_gridWidth-1 || (m_grid[{square.y(),square.x()+1}].first!=ShapeType::EMPTY && !m_grid[{square.y(),square.x()+1}].second)){
+            hasCollided=true;
+            break;
+        }
     }
-    putCurrentShape();
+    if(!hasCollided){
+       clearCurrentShape();
+       m_currentShapePos.setX(m_currentShapePos.x()+1);
+       putCurrentShape();
+    }
 }
 void Game::moveCurrentShapeLeft(){
-    //TODO : check collisions with bottom shape
-
-
-
-    //if no collisions
-
-    //moves shape down
-    clearCurrentShape();
-    int leftMargin=0;
-    int test=m_currentShapePos.x()+m_currentShape->getLeftSpace();
-    if(test>leftMargin){
-       m_currentShapePos.setX(m_currentShapePos.x()-1);
+    auto squares=m_currentShape->getAbsoluteSquares(m_currentShapePos);
+    bool hasCollided=false;
+    for (auto square : squares){
+        if (square.x()==0 || (m_grid[{square.y(),square.x()-1}].first!=ShapeType::EMPTY && !m_grid[{square.y(),square.x()-1}].second)){
+            hasCollided=true;
+            break;
+        }
     }
-    putCurrentShape();
+    if(!hasCollided){
+       clearCurrentShape();
+       m_currentShapePos.setX(m_currentShapePos.x()-1);
+       putCurrentShape();
+    }
 
 }
 void Game::moveCurrentShapeDown(){
     bool hasCollided=false;
     std::vector<QPoint> previousShapeSquares;
     QPoint previousShapePos;
-    //check collisions with bottom shape
-    for (int i=m_currentShapePos.x(); i<m_currentShapePos.x()+m_currentShape->getSize();i++){
-        //qDebug()<<m_currentShapePos.x();
-        int test=m_currentShapePos.y()+m_currentShape->getLowestY(i-m_currentShapePos.x());
-        //qDebug()<<i<<" "<<test<<m_bottomShape->getHeight(i);
-
-        if (test<=m_bottomShape->getHeight(i)){
-            previousShapeSquares=m_currentShape->getSquares();
+    for (auto square : m_currentShape->getAbsoluteSquares(m_currentShapePos)){
+        if (square.y()==0 || (!m_grid[{square.y()-1,square.x()}].second && m_grid[{square.y()-1,square.x()}].first!=ShapeType::EMPTY)){
             previousShapePos=m_currentShapePos;
+            previousShapeSquares=m_currentShape->getAbsoluteSquares(previousShapePos);
             m_currentShape=MovableShape::createMovableShape();
             m_currentShapePos={(m_gridWidth-m_currentShape->getSize())/2,m_gridHeight-m_currentShape->getSize()-3};
             putCurrentShape();
-            qDebug()<<"reset";
             hasCollided=true;
             break;
         }
     }
     if (hasCollided){
-        for (auto square:previousShapeSquares){
-            m_bottomShape->addSquare(previousShapePos+square+QPoint(0,1));
+        //set previous shape not moving
+        for (auto square : previousShapeSquares){
+            m_grid[{square.y(),square.x()}].second=false;
         }
-        m_bottomShape->updateHeightMap();
     }
     else{
         clearCurrentShape();

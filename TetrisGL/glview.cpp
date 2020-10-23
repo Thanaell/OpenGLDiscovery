@@ -118,7 +118,7 @@ void GLView::paintGL()
         QOpenGLVertexArrayObject::Binder vaoBinder(&vao.second);
 
         QVector3D color;
-        switch (m_game->getGrid()[vao.first]){
+        switch (m_game->getGrid()[vao.first].first){
         case EMPTY:
             color=QVector3D(0.2,0.2,0.2);
             break;

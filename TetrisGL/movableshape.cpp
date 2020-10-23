@@ -12,6 +12,14 @@ int intRand(int max){
     return rand()%max;
 }
 
+std::vector<QPoint> MovableShape::getAbsoluteSquares(QPoint shapePosition){
+    std::vector<QPoint> result;
+    for (auto square : m_squares){
+        result.push_back(square+shapePosition);
+    }
+    return result;
+}
+
 int MovableShape::getLowestY(int column){
     QPoint lowestPoint(0,100);
     for (auto square : m_squares){

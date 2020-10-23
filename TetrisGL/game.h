@@ -21,7 +21,7 @@ public:
     void moveCurrentShapeDown();
     void clearCurrentShape();
     void putCurrentShape();
-    std::map<std::pair<int,int>,ShapeType> getGrid(){return m_grid;};
+    std::map<std::pair<int,int>,std::pair<ShapeType,bool>> getGrid(){return m_grid;};
     int getGridHeight(){return m_gridHeight;};
     int getGridWidth(){return m_gridWidth;};
     void moveCurrentShapeRight();
@@ -33,12 +33,13 @@ private:
     static Game * m_instance;
     int m_gridHeight;
     int m_gridWidth;
-    std::map<std::pair<int,int>,ShapeType> m_grid;
+    std::map<std::pair<int,int>,std::pair<ShapeType, bool>> m_grid;
     std::unique_ptr<MovableShape> m_currentShape;
     QPoint m_currentShapePos;
     std::queue<std::unique_ptr<MovableShape>> m_upcomingShapes;
     std::unique_ptr<BottomShape> m_bottomShape;
     QTimer m_timer;
+
 
 signals:
     void gameUpdated();
