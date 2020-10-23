@@ -1,6 +1,6 @@
 #include "shape.h"
 
-Shape::Shape()
+Shape::Shape(int size):m_shapeSize(size)
 {
 
 }

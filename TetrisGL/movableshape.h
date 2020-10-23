@@ -17,14 +17,13 @@ public:
     void rotateClockwise();
     void rotateAntiClockwise();
     virtual ShapeType getType() const = 0;
-    virtual int getSize() const {return m_shapeSize;};
     void updateEdgeSpaces();
     int getLeftSpace(){return m_leftSpace;};
     int getRightSpace(){return m_rightSpace;};
     int getBottomSpace(){return m_bottomSpace;};
+    int getLowestY(int column);
 
 protected:
-    int m_shapeSize;
     int m_leftSpace;
     int m_rightSpace;
     int m_bottomSpace;

@@ -18,6 +18,7 @@ Game::Game() : m_timer(new QTimer)
             m_grid[{i,j}]=ShapeType::EMPTY;
         }
     }
+    m_bottomShape=std::unique_ptr<BottomShape>(new BottomShape(m_gridWidth));
 }
 
 void Game::clearCurrentShape(){
@@ -56,6 +57,8 @@ void Game::moveCurrentShapeRight(){
 void Game::moveCurrentShapeLeft(){
     //TODO : check collisions with bottom shape
 
+
+
     //if no collisions
 
     //moves shape down
@@ -69,20 +72,37 @@ void Game::moveCurrentShapeLeft(){
 
 }
 void Game::moveCurrentShapeDown(){
-    //TODO : check collisions with bottom shape
+    bool hasCollided=false;
+    std::vector<QPoint> previousShapeSquares;
+    QPoint previousShapePos;
+    //check collisions with bottom shape
+    for (int i=m_currentShapePos.x(); i<m_currentShapePos.x()+m_currentShape->getSize();i++){
+        //qDebug()<<m_currentShapePos.x();
+        int test=m_currentShapePos.y()+m_currentShape->getLowestY(i-m_currentShapePos.x());
+        //qDebug()<<i<<" "<<test<<m_bottomShape->getHeight(i);
 
-    //if no collisions
-
-    //moves shape down
-    clearCurrentShape();
-    m_currentShapePos.setY(m_currentShapePos.y()-1);
-    if(m_currentShapePos.y()==0){
-        m_currentShape=MovableShape::createMovableShape();
-        m_currentShapePos={(m_gridWidth-m_currentShape->getSize())/2,m_gridHeight-m_currentShape->getSize()-m_currentShape->getSize()-3};
+        if (test<=m_bottomShape->getHeight(i)){
+            previousShapeSquares=m_currentShape->getSquares();
+            previousShapePos=m_currentShapePos;
+            m_currentShape=MovableShape::createMovableShape();
+            m_currentShapePos={(m_gridWidth-m_currentShape->getSize())/2,m_gridHeight-m_currentShape->getSize()-3};
+            putCurrentShape();
+            qDebug()<<"reset";
+            hasCollided=true;
+            break;
+        }
     }
-    putCurrentShape();
-
-
+    if (hasCollided){
+        for (auto square:previousShapeSquares){
+            m_bottomShape->addSquare(previousShapePos+square+QPoint(0,1));
+        }
+        m_bottomShape->updateHeightMap();
+    }
+    else{
+        clearCurrentShape();
+        m_currentShapePos.setY(m_currentShapePos.y()-1);
+        putCurrentShape();
+    }
 }
 
 void Game::tick(){

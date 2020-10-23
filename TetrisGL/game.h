@@ -34,10 +34,10 @@ private:
     int m_gridHeight;
     int m_gridWidth;
     std::map<std::pair<int,int>,ShapeType> m_grid;
-    std::shared_ptr<MovableShape> m_currentShape;
+    std::unique_ptr<MovableShape> m_currentShape;
     QPoint m_currentShapePos;
-    std::queue<std::shared_ptr<MovableShape>> m_upcomingShapes;
-    std::shared_ptr<BottomShape> m_bottomShape;
+    std::queue<std::unique_ptr<MovableShape>> m_upcomingShapes;
+    std::unique_ptr<BottomShape> m_bottomShape;
     QTimer m_timer;
 
 signals:

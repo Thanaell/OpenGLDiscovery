@@ -12,6 +12,16 @@ int intRand(int max){
     return rand()%max;
 }
 
+int MovableShape::getLowestY(int column){
+    QPoint lowestPoint(0,100);
+    for (auto square : m_squares){
+        if (square.x()==column && square.y()<lowestPoint.y()){
+            lowestPoint=square;
+        }
+    }
+    return lowestPoint.y();
+}
+
 void MovableShape::updateEdgeSpaces(){
     QPoint leftestPoint(100,0);
     QPoint rightestPoint(0,0);
@@ -29,8 +39,7 @@ void MovableShape::updateEdgeSpaces(){
     }
     m_rightSpace=m_shapeSize-rightestPoint.x();
     m_leftSpace=leftestPoint.x();
-    m_bottomSpace=lowestPoint.y();
-    auto test=2;
+    m_bottomSpace=lowestPoint.y();;
 }
 
 std::unique_ptr<MovableShape> MovableShape::createMovableShape(){
@@ -65,7 +74,7 @@ std::unique_ptr<MovableShape> MovableShape::createMovableShape(){
     return std::unique_ptr<MovableShape>(shape);
 }
 
-MovableShape::MovableShape(int size):Shape(),m_shapeSize(size)
+MovableShape::MovableShape(int size):Shape(size)
 {
 
 }
