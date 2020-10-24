@@ -10,6 +10,7 @@
 #include <memory>
 #include "game.h"
 #include "glsquare.h"
+#include "glbackgroundrectangle.h"
 
 QT_FORWARD_DECLARE_CLASS(QOpenGLShaderProgram)
 
@@ -45,9 +46,11 @@ protected:
 
 private:
     std::unique_ptr<Game> m_game;
-    void setupVertexAttribs(GLSquare);
+    void setupVertexAttribs(std::shared_ptr<GLObject>);
     bool m_core;
     QOpenGLVertexArrayObject m_vao;
+    std::shared_ptr<GLObject> m_bg;
+    QOpenGLVertexArrayObject m_bgVao;
     std::map<std::pair<int,int>, QOpenGLVertexArrayObject> m_vaos;
     QOpenGLShaderProgram * m_program = nullptr;
     static bool m_transparent;
@@ -58,8 +61,9 @@ private:
     int m_texLoc;
     QTimer m_timer;
     int m_elapsed;
-    std::map<std::pair<int,int>,GLSquare> m_objects;
+    std::map<std::pair<int,int>,std::shared_ptr<GLObject>> m_objects;
     std::map<int,QImage*> imagesPerInt;
+    QImage m_bgImage;
 };
 
 #endif

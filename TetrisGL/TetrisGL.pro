@@ -21,6 +21,8 @@ SOURCES += \
     barshape.cpp \
     bottomshape.cpp \
     game.cpp \
+    glbackgroundrectangle.cpp \
+    globject.cpp \
     glsquare.cpp \
     glview.cpp \
     ilshape.cpp \
@@ -38,6 +40,8 @@ HEADERS += \
     barshape.h \
     bottomshape.h \
     game.h \
+    glbackgroundrectangle.h \
+    globject.h \
     glsquare.h \
     glview.h \
     ilshape.h \

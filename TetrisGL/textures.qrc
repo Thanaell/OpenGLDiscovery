@@ -3,11 +3,11 @@
     <file>images/blue.png</file>
     <file>images/red.png</file>
     <file>images/green.png</file>
+    <file>images/darkgreen.png</file>
     <file>images/yellow.png</file>
     <file>images/cyan.png</file>
     <file>images/purple.png</file>
     <file>images/orange.png</file>
-    <file>images/side1.png</file>
-    <file>images/test.png</file>
+    <file>images/background.jpg</file>
 </qresource>
 </RCC>
