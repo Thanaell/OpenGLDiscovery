@@ -19,17 +19,16 @@ GLView::GLView(std::unique_ptr<Game> game,QWidget *parent)
             m_objects[{x,y}].translateModelMatrix(QVector3D(x,y,0));
         }
     }
-    for (int i=0; i<8; i++){
-        imagesPerInt[i]=new QImage(4,4,QImage::Format_RGB16);
-    }
+    imagesPerInt[ShapeType::EMPTY]=new QImage(50,50,QImage::Format_RGB16);
     imagesPerInt[ShapeType::EMPTY]->fill(Qt::gray);
-    imagesPerInt[ShapeType::L]->fill(Qt::blue);
-    imagesPerInt[ShapeType::Z]->fill(Qt::red);
-    imagesPerInt[ShapeType::S]->fill(Qt::green);
-    imagesPerInt[ShapeType::IL]->fill(Qt::yellow);
-    imagesPerInt[ShapeType::T]->fill(Qt::magenta);
-    imagesPerInt[ShapeType::Bar]->fill(Qt::cyan);
-    imagesPerInt[ShapeType::SQ]->fill(Qt::white);
+    imagesPerInt[ShapeType::L]=new QImage(QString(":images/red.png"));
+    imagesPerInt[ShapeType::Z]=new QImage(QString(":images/green.png"));
+    imagesPerInt[ShapeType::S]=new QImage(QString(":images/blue.png"));
+    imagesPerInt[ShapeType::IL]=new QImage(QString(":images/purple.png"));
+    imagesPerInt[ShapeType::T]=new QImage(QString(":images/yellow.png"));
+    imagesPerInt[ShapeType::Bar]=new QImage(QString(":images/cyan.png"));
+    imagesPerInt[ShapeType::SQ]=new QImage(QString(":images/orange.png"));
+
 }
 
 GLView::~GLView()
@@ -77,7 +76,7 @@ static const char *fragmentShaderSource =
     "out vec4 FragColor;\n"
     "in vec2 texC;\n"
     "void main() {\n"
-    "   FragColor = texture(myTex,texC);\n"
+    "   FragColor = texture2D(myTex,texC);\n"
     "}\n";
 
 void GLView::initializeGL()
@@ -124,7 +123,7 @@ void GLView::setupVertexAttribs(GLSquare square)
     f->glVertexAttribPointer(1,3, GL_FLOAT, GL_FALSE, 5*sizeof (GLfloat), nullptr);
 
     f->glEnableVertexAttribArray(2);
-    f->glVertexAttribPointer(2,2, GL_FLOAT, GL_FALSE, 5*sizeof (GLfloat), (void*)(2*sizeof(GLfloat)));
+    f->glVertexAttribPointer(2,2, GL_FLOAT, GL_FALSE, 5*sizeof (GLfloat), (void*)(3*sizeof(GLfloat)));
 
     square.getVBO()->release();
 }

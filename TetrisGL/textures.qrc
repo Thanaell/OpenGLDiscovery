@@ -1,0 +1,13 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource>
+    <file>images/blue.png</file>
+    <file>images/red.png</file>
+    <file>images/green.png</file>
+    <file>images/yellow.png</file>
+    <file>images/cyan.png</file>
+    <file>images/purple.png</file>
+    <file>images/orange.png</file>
+    <file>images/side1.png</file>
+    <file>images/test.png</file>
+</qresource>
+</RCC>
