@@ -3,6 +3,7 @@
 #include <QOpenGLShaderProgram>
 #include <QCoreApplication>
 #include <math.h>
+#include <QOpenGLTexture>
 
 
 
@@ -18,6 +19,17 @@ GLView::GLView(std::unique_ptr<Game> game,QWidget *parent)
             m_objects[{x,y}].translateModelMatrix(QVector3D(x,y,0));
         }
     }
+    for (int i=0; i<8; i++){
+        imagesPerInt[i]=new QImage(4,4,QImage::Format_RGB16);
+    }
+    imagesPerInt[ShapeType::EMPTY]->fill(Qt::gray);
+    imagesPerInt[ShapeType::L]->fill(Qt::blue);
+    imagesPerInt[ShapeType::Z]->fill(Qt::red);
+    imagesPerInt[ShapeType::S]->fill(Qt::green);
+    imagesPerInt[ShapeType::IL]->fill(Qt::yellow);
+    imagesPerInt[ShapeType::T]->fill(Qt::magenta);
+    imagesPerInt[ShapeType::Bar]->fill(Qt::cyan);
+    imagesPerInt[ShapeType::SQ]->fill(Qt::white);
 }
 
 GLView::~GLView()
@@ -47,6 +59,8 @@ void GLView::cleanup()
 
 static const char *vertexShaderSource =
     "#version 150\n"
+    "in vec2 texCoords;\n"
+    "out vec2 texC;\n"
     "in vec3 vertex;\n"
     "uniform mat4 model;\n"
     "uniform mat4 view;\n"
@@ -54,14 +68,16 @@ static const char *vertexShaderSource =
     "void main()\n"
     "{\n"
     "   gl_Position = proj*view*model*vec4(vertex.xyz,1.0);\n"
+    "   texC=texCoords;\n"
     "}\n";
 
 static const char *fragmentShaderSource =
     "#version 150\n"
+    "uniform sampler2D myTex;\n"
     "out vec4 FragColor;\n"
-    "uniform vec3 color;\n"
+    "in vec2 texC;\n"
     "void main() {\n"
-    "   FragColor = vec4(color,1);\n"
+    "   FragColor = texture(myTex,texC);\n"
     "}\n";
 
 void GLView::initializeGL()
@@ -75,14 +91,16 @@ void GLView::initializeGL()
     m_program->addShaderFromSourceCode(QOpenGLShader::Vertex,vertexShaderSource);
     m_program->addShaderFromSourceCode(QOpenGLShader::Fragment,fragmentShaderSource);
     m_program->bindAttributeLocation("vertex", 1);
+    m_program->bindAttributeLocation("texCoords",2);
 
     m_program->link();
     m_modelMatLoc = m_program->uniformLocation("model");
     m_viewMatLoc = m_program->uniformLocation("view");
     m_projMatLoc = m_program->uniformLocation("proj");
-    m_colorLoc=m_program->uniformLocation("color");
+    m_texLoc=m_program->uniformLocation("myTex");
 
     m_program->bind();
+    m_program->setUniformValue(m_texLoc,0);
 
     for (auto object : m_objects){
         m_vaos[object.first].create();
@@ -103,7 +121,11 @@ void GLView::setupVertexAttribs(GLSquare square)
     square.getVBO()->bind();
     QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
     f->glEnableVertexAttribArray(1);
-    f->glVertexAttribPointer(1,3, GL_FLOAT, GL_FALSE, 3*sizeof (GLfloat), nullptr);
+    f->glVertexAttribPointer(1,3, GL_FLOAT, GL_FALSE, 5*sizeof (GLfloat), nullptr);
+
+    f->glEnableVertexAttribArray(2);
+    f->glVertexAttribPointer(2,2, GL_FLOAT, GL_FALSE, 5*sizeof (GLfloat), (void*)(2*sizeof(GLfloat)));
+
     square.getVBO()->release();
 }
 
@@ -117,33 +139,8 @@ void GLView::paintGL()
 
         QOpenGLVertexArrayObject::Binder vaoBinder(&vao.second);
 
-        QVector3D color;
-        switch (m_game->getGrid()[vao.first].first){
-        case EMPTY:
-            color=QVector3D(0.2,0.2,0.2);
-            break;
-        case T:
-            color=QVector3D(1,0,1);
-            break;
-        case S:
-            color=QVector3D(1,1,0);
-            break;
-        case L:
-            color=QVector3D(0,1,1);
-            break;
-        case Z:
-            color=QVector3D(1,0,0);
-            break;
-        case SQ:
-            color=QVector3D(0,1,0);
-            break;
-        case IL:
-            color=QVector3D(0,0,1);
-            break;
-        case Bar:
-            color=QVector3D(1,1,1);
-            break;
-        }
+        QImage *image=imagesPerInt[m_game->getGrid()[vao.first].first];
+        QOpenGLTexture *texture=new QOpenGLTexture(*image);
 
         QMatrix4x4 modelMatrix;
         modelMatrix=m_objects[vao.first].getModelMatrix();
@@ -159,7 +156,8 @@ void GLView::paintGL()
         m_program->setUniformValue(m_modelMatLoc, modelMatrix);
         m_program->setUniformValue(m_viewMatLoc, viewMatrix);
         m_program->setUniformValue(m_projMatLoc, projMatrix);
-        m_program->setUniformValue(m_colorLoc,color);
+
+        texture->bind();
         glDrawArrays(GL_TRIANGLES,0,6);
     }
     m_program->release();

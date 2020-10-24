@@ -55,9 +55,11 @@ private:
     int m_viewMatLoc;
     int m_projMatLoc;
     int m_colorLoc;
+    int m_texLoc;
     QTimer m_timer;
     int m_elapsed;
     std::map<std::pair<int,int>,GLSquare> m_objects;
+    std::map<int,QImage*> imagesPerInt;
 };
 
 #endif
