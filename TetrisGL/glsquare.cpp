@@ -1,5 +1,7 @@
 #include "glsquare.h"
 
+int GLSquare::scaleFactor=3;
+
 GLSquare::GLSquare()
 {
     std::vector<QVector3D> vertexes;

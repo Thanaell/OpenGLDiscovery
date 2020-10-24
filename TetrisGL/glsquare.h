@@ -23,6 +23,7 @@ private :
     QVector<GLfloat> m_data;
     int m_count;
     QMatrix4x4 m_modelMatrix;
+    static int scaleFactor;
 
 signals:
 

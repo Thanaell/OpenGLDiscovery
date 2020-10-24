@@ -12,10 +12,10 @@ GLView::GLView(std::unique_ptr<Game> game,QWidget *parent)
 {
     m_game=std::move(game);
     setFocusPolicy(Qt::FocusPolicy::StrongFocus);
-    for (int i =0; i<m_game->getGridHeight(); i++){
-        for (int j=0; j<m_game->getGridWidth(); j++){
-            m_objects[{i,j}]=GLSquare();
-            m_objects[{i,j}].translateModelMatrix(QVector3D(j,i,0));
+    for (int x =0; x<m_game->getGridWidth(); x++){
+        for (int y=0; y<m_game->getGridHeight(); y++){
+            m_objects[{x,y}]=GLSquare();
+            m_objects[{x,y}].translateModelMatrix(QVector3D(x,y,0));
         }
     }
 }
@@ -153,7 +153,7 @@ void GLView::paintGL()
 
         QMatrix4x4 projMatrix=QMatrix4x4();
         projMatrix.setToIdentity();
-        projMatrix.ortho(-5,15,-3,51,-10,20);
+        projMatrix.ortho(-2,m_game->getGridWidth(),-2,m_game->getGridHeight(),-10,10);
 
         m_program->bind();
         m_program->setUniformValue(m_modelMatLoc, modelMatrix);

@@ -22,6 +22,7 @@ public:
     int getRightSpace(){return m_rightSpace;};
     int getBottomSpace(){return m_bottomSpace;};
     int getLowestY(int column);
+    int getVerticalSize();
     std::vector<QPoint> getAbsoluteSquares(QPoint shapePosition);
 
 protected:

@@ -7,9 +7,18 @@
 #include "sqshape.h"
 #include "zshape.h"
 #include "sshape.h"
+#include <set>
 
 int intRand(int max){
     return rand()%max;
+}
+
+int MovableShape::getVerticalSize(){
+    std::set<int> lines;
+    for (auto square : m_squares){
+        lines.insert(square.y());
+    }
+    return lines.size();
 }
 
 std::vector<QPoint> MovableShape::getAbsoluteSquares(QPoint shapePosition){

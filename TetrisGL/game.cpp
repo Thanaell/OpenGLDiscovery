@@ -12,12 +12,12 @@ Game::Game() : m_timer(new QTimer)
     m_gridWidth=10;
     m_gridHeight=20;
     m_currentShape=MovableShape::createMovableShape();
-    m_currentShapePos={(m_gridWidth-m_currentShape->getSize())/2,m_gridHeight-m_currentShape->getSize()-3};
+    m_currentShapePos={(m_gridWidth-m_currentShape->getSize())/2,m_gridHeight-m_currentShape->getVerticalSize()};
     putCurrentShape();
-    for (int i =0; i<m_gridHeight; i++){
-        for (int j=0; j<m_gridWidth; j++){
-            m_grid[{j,i}].first=ShapeType::EMPTY;
-            m_grid[{j,i}].second=false;
+    for (int x=0; x<m_gridWidth; x++){
+        for (int y =0; y<m_gridHeight; y++){
+            m_grid[{x,y}].first=ShapeType::EMPTY;
+            m_grid[{x,y}].second=false;
         }
     }
     m_bottomShape=std::unique_ptr<BottomShape>(new BottomShape(m_gridWidth));
@@ -26,15 +26,15 @@ Game::Game() : m_timer(new QTimer)
 void Game::clearCurrentShape(){
     //removes shape from grid
     for (auto point : m_currentShape->getSquares()){
-        m_grid[{m_currentShapePos.y()+point.y(),m_currentShapePos.x()+point.x()}].first=ShapeType::EMPTY;
+        m_grid[{m_currentShapePos.x()+point.x(),m_currentShapePos.y()+point.y()}].first=ShapeType::EMPTY;
     }
 }
 
 void Game::putCurrentShape(){
     //replaces shape in grid
     for (auto point : m_currentShape->getSquares()){
-        m_grid[{m_currentShapePos.y()+point.y(),m_currentShapePos.x()+point.x()}].first=m_currentShape->getType();
-        m_grid[{m_currentShapePos.y()+point.y(),m_currentShapePos.x()+point.x()}].second=true;
+        m_grid[{m_currentShapePos.x()+point.x(),m_currentShapePos.y()+point.y()}].first=m_currentShape->getType();
+        m_grid[{m_currentShapePos.x()+point.x(),m_currentShapePos.y()+point.y()}].second=true;
     }
 }
 
@@ -47,7 +47,7 @@ void Game::moveCurrentShapeRight(){
     auto squares=m_currentShape->getAbsoluteSquares(m_currentShapePos);
     bool hasCollided=false;
     for (auto square : squares){
-        if (square.x()==m_gridWidth-1 || (m_grid[{square.y(),square.x()+1}].first!=ShapeType::EMPTY && !m_grid[{square.y(),square.x()+1}].second)){
+        if (square.x()==m_gridWidth-1 || (m_grid[{square.x()+1,square.y()}].first!=ShapeType::EMPTY && !m_grid[{square.x()+1,square.y()}].second)){
             hasCollided=true;
             break;
         }
@@ -62,7 +62,7 @@ void Game::moveCurrentShapeLeft(){
     auto squares=m_currentShape->getAbsoluteSquares(m_currentShapePos);
     bool hasCollided=false;
     for (auto square : squares){
-        if (square.x()==0 || (m_grid[{square.y(),square.x()-1}].first!=ShapeType::EMPTY && !m_grid[{square.y(),square.x()-1}].second)){
+        if (square.x()==0 || (m_grid[{square.x()-1,square.y()}].first!=ShapeType::EMPTY && !m_grid[{square.x()-1,square.y()}].second)){
             hasCollided=true;
             break;
         }
@@ -77,11 +77,11 @@ void Game::moveCurrentShapeLeft(){
 void Game::checkLinesAndUpdate(std::set<int> lines){
     std::map<int,int> elementsPerLine;
     std::vector<int> linesToUpdate;
-    for (int i : lines){
-        elementsPerLine[i]=0;
-        for (int j=0; j<m_gridWidth; j++){
-            if (m_grid[{i,j}].first!=ShapeType::EMPTY){
-                elementsPerLine[i]++;
+    for (int y : lines){
+        elementsPerLine[y]=0;
+        for (int x=0; x<m_gridWidth; x++){
+            if (m_grid[{x,y}].first!=ShapeType::EMPTY){
+                elementsPerLine[y]++;
             }
         }
     }
@@ -94,11 +94,11 @@ void Game::checkLinesAndUpdate(std::set<int> lines){
     std::reverse(linesToUpdate.begin(),linesToUpdate.end());
 
     for (auto line : linesToUpdate){
-        for (int i = line; i<m_gridHeight-1; i++){
-            for (int j=0; j<m_gridWidth; j++){
-                if (!m_grid[{i+1,j}].second){
-                    m_grid[{i,j}].first=m_grid[{i+1,j}].first;
-                    m_grid[{i,j}].second=false;
+        for (int y = line; y<m_gridHeight-1; y++){
+            for (int x=0; x<m_gridWidth; x++){
+                if (!m_grid[{x,y+1}].second){
+                    m_grid[{x,y}].first=m_grid[{x,y+1}].first;
+                    m_grid[{x,y}].second=false;
 
                 }
             }
@@ -110,9 +110,9 @@ void Game::moveCurrentShapeDown(){
     QPoint previousShapePos=m_currentShapePos;
     std::vector<QPoint> previousShapeSquares=m_currentShape->getAbsoluteSquares(previousShapePos);
     for (auto square : m_currentShape->getAbsoluteSquares(m_currentShapePos)){
-        if (square.y()==0 || (!m_grid[{square.y()-1,square.x()}].second && m_grid[{square.y()-1,square.x()}].first!=ShapeType::EMPTY)){
+        if (square.y()==0 || (!m_grid[{square.x(),square.y()-1}].second && m_grid[{square.x(),square.y()-1}].first!=ShapeType::EMPTY)){
             m_currentShape=MovableShape::createMovableShape();
-            m_currentShapePos={(m_gridWidth-m_currentShape->getSize())/2,m_gridHeight-m_currentShape->getSize()-3};
+            m_currentShapePos={(m_gridWidth-m_currentShape->getSize())/2,m_gridHeight-m_currentShape->getVerticalSize()};
             putCurrentShape();
             hasCollided=true;
             break;
@@ -122,14 +122,14 @@ void Game::moveCurrentShapeDown(){
         std::set<int> lines;
         //set previous shape not moving
         for (auto square : previousShapeSquares){
-            m_grid[{square.y(),square.x()}].second=false;
+            m_grid[{square.x(),square.y()}].second=false;
             lines.insert(square.y());
         }
         checkLinesAndUpdate(lines);
     }
     else{
         for (auto square : previousShapeSquares){
-            m_grid[{square.y(),square.x()}].second=false;
+            m_grid[{square.x(),square.y()}].second=false;
         }
         clearCurrentShape();
         m_currentShapePos.setY(m_currentShapePos.y()-1);
