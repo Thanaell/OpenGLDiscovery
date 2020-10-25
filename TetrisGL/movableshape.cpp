@@ -13,6 +13,10 @@ int intRand(int max){
     return rand()%max;
 }
 
+int MovableShape::getMaxShapeSize(){
+    return 6;
+}
+
 int MovableShape::getVerticalSize(){
     std::set<int> lines;
     for (auto square : m_squares){
@@ -60,6 +64,7 @@ void MovableShape::updateEdgeSpaces(){
 }
 
 std::unique_ptr<MovableShape> MovableShape::createMovableShape(){
+    //TODO : parcourir weightPerShape
     int result=intRand(7);
     MovableShape * shape=nullptr;
     switch (result) {

@@ -19,7 +19,6 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     barshape.cpp \
-    bottomshape.cpp \
     game.cpp \
     glbackgroundrectangle.cpp \
     globject.cpp \
@@ -38,7 +37,6 @@ SOURCES += \
 
 HEADERS += \
     barshape.h \
-    bottomshape.h \
     game.h \
     glbackgroundrectangle.h \
     globject.h \

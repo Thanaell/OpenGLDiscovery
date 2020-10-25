@@ -53,6 +53,7 @@ private:
     std::shared_ptr<GLObject> m_bg;
     QOpenGLVertexArrayObject m_bgVao;
     std::map<std::pair<int,int>, QOpenGLVertexArrayObject> m_vaos;
+    std::map<std::pair<int,int>, QOpenGLVertexArrayObject> m_upcomingVaos;
     QOpenGLShaderProgram * m_program = nullptr;
     static bool m_transparent;
     int m_modelMatLoc;
@@ -63,10 +64,16 @@ private:
     QTimer m_timer;
     int m_elapsed;
     std::map<std::pair<int,int>,std::shared_ptr<GLObject>> m_objects;
+    std::map<std::pair<int,int>,std::shared_ptr<GLObject>> m_upcomingObjects;
     std::map<int,QImage*> m_imagesPerShapeType;
     std::map<int,QOpenGLTexture*> m_objectsTextures;
     QImage * m_bgImage;
     QOpenGLTexture * m_bgTexture;
+
+    std::shared_ptr<GLObject> m_bgUpcoming;
+    QOpenGLVertexArrayObject m_bgUpcomingVao;
+    QImage * m_bgUpcomingImage;
+    QOpenGLTexture * m_bgUpcomingTexture;
 };
 
 #endif

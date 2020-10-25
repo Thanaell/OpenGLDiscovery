@@ -6,11 +6,13 @@
 Game * Game::m_instance=nullptr;
 
 
-Game::Game() : m_timer(new QTimer)
+Game::Game() : nbUpcomingShapes(3),m_timer(new QTimer)
 {
     srand (static_cast <unsigned> (time(0)));
     m_gridWidth=10;
     m_gridHeight=20;
+    m_upcomingGridWidth=MovableShape::getMaxShapeSize()+2;
+    m_upcomingGridHeight=nbUpcomingShapes*MovableShape::getMaxShapeSize();
     m_currentShape=MovableShape::createMovableShape();
     m_currentShapePos={(m_gridWidth-m_currentShape->getSize())/2,m_gridHeight-m_currentShape->getVerticalSize()};
     putCurrentShape();
@@ -20,7 +22,30 @@ Game::Game() : m_timer(new QTimer)
             m_grid[{x,y}].second=false;
         }
     }
-    m_bottomShape=std::unique_ptr<BottomShape>(new BottomShape(m_gridWidth));
+    for (int i =0; i<m_upcomingGridWidth; i++){
+        for (int j=0; j<m_upcomingGridHeight;j++){
+            m_upcomingGrid[{i,j}]=ShapeType::EMPTY;
+        }
+    }
+    for (int i=0; i<nbUpcomingShapes;i++){
+        m_upcomingShapes.push_back(MovableShape::createMovableShape());
+    }
+    updateUpcomingShapesGrid();
+
+}
+
+void Game::updateUpcomingShapesGrid(){
+    m_upcomingGrid.clear();
+    QPoint shapePos;
+    for (int i=0; i<nbUpcomingShapes; i++){
+        shapePos.setY(i*MovableShape::getMaxShapeSize());
+        auto &shape=m_upcomingShapes[nbUpcomingShapes-i-1];
+        ShapeType type=shape->getType();
+        auto squares=shape->getAbsoluteSquares(shapePos);
+        for (auto square : squares){
+            m_upcomingGrid[{square.x(),square.y()}]=type;
+        }
+    }
 }
 
 void Game::clearCurrentShape(){
@@ -105,13 +130,21 @@ void Game::checkLinesAndUpdate(std::set<int> lines){
         }
     }
 }
+
+void Game::generateNewMovableShape(){
+    m_currentShape=std::move(m_upcomingShapes.front());
+    m_upcomingShapes.pop_front();
+    m_upcomingShapes.push_back(MovableShape::createMovableShape());
+    updateUpcomingShapesGrid();
+}
+
 void Game::moveCurrentShapeDown(){
     bool hasCollided=false;
     QPoint previousShapePos=m_currentShapePos;
     std::vector<QPoint> previousShapeSquares=m_currentShape->getAbsoluteSquares(previousShapePos);
     for (auto square : m_currentShape->getAbsoluteSquares(m_currentShapePos)){
         if (square.y()==0 || (!m_grid[{square.x(),square.y()-1}].second && m_grid[{square.x(),square.y()-1}].first!=ShapeType::EMPTY)){
-            m_currentShape=MovableShape::createMovableShape();
+            generateNewMovableShape();
             m_currentShapePos={(m_gridWidth-m_currentShape->getSize())/2,m_gridHeight-m_currentShape->getVerticalSize()};
             putCurrentShape();
             hasCollided=true;

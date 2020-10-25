@@ -7,7 +7,6 @@
 #include <queue>
 #include <memory>
 #include "movableshape.h"
-#include "bottomshape.h"
 #include "QTimer"
 #include <set>
 
@@ -23,12 +22,17 @@ public:
     void clearCurrentShape();
     void putCurrentShape();
     std::map<std::pair<int,int>,std::pair<ShapeType,bool>> getGrid(){return m_grid;};
+    std::map<std::pair<int,int>,ShapeType> getUpcomingGrid(){return m_upcomingGrid;};
     int getGridHeight(){return m_gridHeight;};
     int getGridWidth(){return m_gridWidth;};
+    int getUpcomingGridHeight(){return m_upcomingGridHeight;};
+    int getUpcomingGridWidth(){return m_upcomingGridWidth;};
     void moveCurrentShapeRight();
     void moveCurrentShapeLeft();
     void checkLinesAndUpdate(std::set<int> lines);
     void removeLine(int line);
+    void updateUpcomingShapesGrid();
+    void generateNewMovableShape();
 public slots:
     void tick();
 private:
@@ -36,11 +40,14 @@ private:
     static Game * m_instance;
     int m_gridHeight;
     int m_gridWidth;
+    int m_upcomingGridHeight;
+    int m_upcomingGridWidth;
     std::map<std::pair<int,int>,std::pair<ShapeType, bool>> m_grid;
+    std::map<std::pair<int,int>,ShapeType> m_upcomingGrid;
     std::unique_ptr<MovableShape> m_currentShape;
     QPoint m_currentShapePos;
-    std::queue<std::unique_ptr<MovableShape>> m_upcomingShapes;
-    std::unique_ptr<BottomShape> m_bottomShape;
+    std::deque<std::unique_ptr<MovableShape>> m_upcomingShapes;
+    int nbUpcomingShapes;
     QTimer m_timer;
 
 

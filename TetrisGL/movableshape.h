@@ -3,6 +3,7 @@
 
 #include "shape.h"
 #include <memory>
+#include <map>
 
 enum ShapeType{
     EMPTY,S,Z,L,IL,Bar,SQ,T
@@ -24,11 +25,15 @@ public:
     int getLowestY(int column);
     int getVerticalSize();
     std::vector<QPoint> getAbsoluteSquares(QPoint shapePosition);
+    static int getMaxShapeSize();
 
 protected:
     int m_leftSpace;
     int m_rightSpace;
     int m_bottomSpace;
+private:
+    static std::map<ShapeType,int> weightPerShape;
+
 };
 
 #endif // MOVABLESHAPE_H

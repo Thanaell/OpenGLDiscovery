@@ -19,6 +19,14 @@ GLView::GLView(std::unique_ptr<Game> game,QWidget *parent)
             m_objects[{x,y}]->translateModelMatrix(QVector3D(x,y,0));
         }
     }
+
+    for (int x =0; x<m_game->getUpcomingGridWidth(); x++){
+        for (int y=0; y<m_game->getUpcomingGridHeight(); y++){
+            m_upcomingObjects[{x,y}]=std::make_shared<GLSquare>();
+            m_upcomingObjects[{x,y}]->translateModelMatrix(QVector3D(x+14,y+4,0));
+        }
+    }
+
     m_imagesPerShapeType[ShapeType::EMPTY]=new QImage(50,50,QImage::Format_ARGB32 );
     m_imagesPerShapeType[ShapeType::EMPTY]->fill(qRgba(0,0,0,0));
     m_imagesPerShapeType[ShapeType::L]=new QImage(QString(":images/red.png"));
@@ -34,6 +42,11 @@ GLView::GLView(std::unique_ptr<Game> game,QWidget *parent)
     m_bg->scale(20);
     m_bgImage=new QImage(QString(":images/background.jpg"));
 
+    m_bgUpcoming=std::make_shared<GLBackgroundRectangle>(0.5);
+    m_bgUpcoming->translateModelMatrix(QVector3D(12,4,-1));
+    m_bgUpcoming->scale(15);
+    m_bgUpcomingImage=new QImage(QString(":images/background.jpg"));
+
 }
 
 GLView::~GLView()
@@ -48,7 +61,7 @@ QSize GLView::minimumSizeHint() const
 
 QSize GLView::sizeHint() const
 {
-    return QSize(300, 1000);
+    return QSize(600, 1000);
 }
 
 void GLView::cleanup()
@@ -118,9 +131,26 @@ void GLView::initializeGL()
     m_bg->getVBO()->allocate( m_bg->const_data(),m_bg->count()*sizeof (GLfloat));
     setupVertexAttribs(m_bg);
 
+    m_bgUpcomingVao.create();
+    QOpenGLVertexArrayObject::Binder vaoBinder2(&m_bgUpcomingVao);
+    //vaoBinder(&m_bgUpcomingVao);
+    m_bgUpcoming->getVBO()->create();
+    m_bgUpcoming->getVBO()->bind();
+    m_bgUpcoming->getVBO()->allocate( m_bgUpcoming->const_data(),m_bgUpcoming->count()*sizeof (GLfloat));
+    setupVertexAttribs(m_bgUpcoming);
+
     for (auto object : m_objects){
         m_vaos[object.first].create();
         QOpenGLVertexArrayObject::Binder vaoBinder(&m_vaos[object.first]);
+        object.second->getVBO()->create();
+        object.second->getVBO()->bind();
+        object.second->getVBO()->allocate(object.second->const_data(),object.second->count()*sizeof (GLfloat));
+        setupVertexAttribs(object.second);
+    }
+
+    for (auto object : m_upcomingObjects){
+        m_upcomingVaos[object.first].create();
+        QOpenGLVertexArrayObject::Binder vaoBinder(&m_upcomingVaos[object.first]);
         object.second->getVBO()->create();
         object.second->getVBO()->bind();
         object.second->getVBO()->allocate(object.second->const_data(),object.second->count()*sizeof (GLfloat));
@@ -131,6 +161,7 @@ void GLView::initializeGL()
         m_objectsTextures[image.first]=new QOpenGLTexture(*image.second);
     }
     m_bgTexture=new QOpenGLTexture(*m_bgImage);
+    m_bgUpcomingTexture=new QOpenGLTexture(*m_bgUpcomingImage);
 
     m_program->release();
     int fps=100;
@@ -161,20 +192,29 @@ void GLView::paintGL()
 
     QMatrix4x4 projMatrix=QMatrix4x4();
     projMatrix.setToIdentity();
-    projMatrix.ortho(-1,m_game->getGridWidth()+1,-1,m_game->getGridHeight()+1,-10,100);
+    projMatrix.ortho(-1,m_game->getGridWidth()+12,-1,m_game->getGridHeight()+1,-10,100);
     //projMatrix.ortho(-100,100,-50,100,-100,100);
 
     for (auto &vao : m_vaos){
-
-
         QOpenGLVertexArrayObject::Binder vaoBinder(&vao.second);
-
         QOpenGLTexture *texture=m_objectsTextures[m_game->getGrid()[vao.first].first];
-
         QMatrix4x4 modelMatrix;
         modelMatrix=m_objects[vao.first]->getModelMatrix();
         modelMatrix.scale(1);
+        m_program->bind();
+        m_program->setUniformValue(m_modelMatLoc, modelMatrix);
+        m_program->setUniformValue(m_viewMatLoc, viewMatrix);
+        m_program->setUniformValue(m_projMatLoc, projMatrix);
+        texture->bind();
+        glDrawArrays(GL_TRIANGLES,0,6);
+    }
 
+    for (auto &vao : m_upcomingVaos){
+        QOpenGLVertexArrayObject::Binder vaoBinder(&vao.second);
+        QOpenGLTexture *texture=m_objectsTextures[m_game->getUpcomingGrid()[vao.first]];
+        QMatrix4x4 modelMatrix;
+        modelMatrix=m_upcomingObjects[vao.first]->getModelMatrix();
+        modelMatrix.scale(1);
         m_program->bind();
         m_program->setUniformValue(m_modelMatLoc, modelMatrix);
         m_program->setUniformValue(m_viewMatLoc, viewMatrix);
@@ -185,18 +225,25 @@ void GLView::paintGL()
     }
 
     QOpenGLVertexArrayObject::Binder vaoBinder(&m_bgVao);
-
     QOpenGLTexture *texture=m_bgTexture;
-
     QMatrix4x4 modelMatrix;
     modelMatrix=m_bg->getModelMatrix();
-
     m_program->bind();
     m_program->setUniformValue(m_modelMatLoc, modelMatrix);
     m_program->setUniformValue(m_viewMatLoc, viewMatrix);
     m_program->setUniformValue(m_projMatLoc, projMatrix);
-
     texture->bind();
+    glDrawArrays(GL_TRIANGLES,0,6);
+
+    QOpenGLVertexArrayObject::Binder vaoBinder2(&m_bgUpcomingVao);
+    QOpenGLTexture *texture2=m_bgUpcomingTexture;
+    QMatrix4x4 modelMatrix2;
+    modelMatrix2=m_bgUpcoming->getModelMatrix();
+    m_program->bind();
+    m_program->setUniformValue(m_modelMatLoc, modelMatrix2);
+    m_program->setUniformValue(m_viewMatLoc, viewMatrix);
+    m_program->setUniformValue(m_projMatLoc, projMatrix);
+    texture2->bind();
     glDrawArrays(GL_TRIANGLES,0,6);
 
     m_program->release();
