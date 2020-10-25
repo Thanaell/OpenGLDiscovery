@@ -9,12 +9,23 @@
 #include "sshape.h"
 #include <set>
 
+std::map<ShapeType,int> MovableShape::weightPerShape{ {ShapeType::Bar,2}
+                                                     ,{ShapeType::SQ,2}
+                                                     ,{ShapeType::Z,4}
+                                                     ,{ShapeType::S,4}
+                                                     ,{ShapeType::L,4}
+                                                     ,{ShapeType::IL,4}
+                                                     ,{ShapeType::T,2}
+};
+
+std::vector<ShapeType> MovableShape::randomShapesVec{};
+
 int intRand(int max){
     return rand()%max;
 }
 
 int MovableShape::getMaxShapeSize(){
-    return 6;
+    return 4;
 }
 
 int MovableShape::getVerticalSize(){
@@ -23,6 +34,16 @@ int MovableShape::getVerticalSize(){
         lines.insert(square.y());
     }
     return lines.size();
+}
+
+void MovableShape::updateRandomShapesVec(){
+    if (randomShapesVec.empty()){
+        for (auto shape : weightPerShape){
+            for (int i =0; i<shape.second;i++){
+                randomShapesVec.push_back(shape.first);
+            }
+        }
+    }
 }
 
 std::vector<QPoint> MovableShape::getAbsoluteSquares(QPoint shapePosition){
@@ -43,56 +64,37 @@ int MovableShape::getLowestY(int column){
     return lowestPoint.y();
 }
 
-void MovableShape::updateEdgeSpaces(){
-    QPoint leftestPoint(100,0);
-    QPoint rightestPoint(0,0);
-    QPoint lowestPoint(0,100);
-    for (auto point : m_squares){
-        if (point.x()>rightestPoint.x()){
-            rightestPoint=point;
-        }
-        if (point.x()<leftestPoint.x()){
-            leftestPoint=point;
-        }
-        if (point.y()<lowestPoint.y()){
-            lowestPoint=point;
-        }
-    }
-    m_rightSpace=m_shapeSize-rightestPoint.x();
-    m_leftSpace=leftestPoint.x();
-    m_bottomSpace=lowestPoint.y();;
-}
-
 std::unique_ptr<MovableShape> MovableShape::createMovableShape(){
-    //TODO : parcourir weightPerShape
-    int result=intRand(7);
+    int result=intRand(randomShapesVec.size());
+    ShapeType type=randomShapesVec[result];
     MovableShape * shape=nullptr;
-    switch (result) {
-    case 0:
+    switch (type) {
+    case ShapeType::T:
         shape=new TShape();
         break;
-    case 1:
+    case ShapeType::L:
         shape=new LShape();
         break;
-    case 2:
+    case ShapeType::IL:
         shape=new ILShape();
         break;
-    case 3:
+    case ShapeType::Z:
         shape=new ZShape();
         break;
-    case 4:
+    case ShapeType::S:
         shape=new SShape();
         break;
-    case 5:
+    case ShapeType::SQ:
         shape=new SQShape();
         break;
-    case 6:
+    case ShapeType::Bar:
         shape=new BarShape();
         break;
     default:
         shape=new TShape();
     };
-    shape->updateEdgeSpaces();
+    randomShapesVec.erase(randomShapesVec.begin()+result);
+    updateRandomShapesVec();
     return std::unique_ptr<MovableShape>(shape);
 }
 
@@ -111,7 +113,6 @@ void MovableShape::rotateClockwise(){
         newSquares.push_back(point);
     }
     m_squares=newSquares;
-    updateEdgeSpaces();
 }
 
 void MovableShape::rotateAntiClockwise(){
@@ -124,5 +125,4 @@ void MovableShape::rotateAntiClockwise(){
         newSquares.push_back(point);
     }
      m_squares=newSquares;
-     updateEdgeSpaces();
 }

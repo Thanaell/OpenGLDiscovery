@@ -23,7 +23,7 @@ GLView::GLView(std::unique_ptr<Game> game,QWidget *parent)
     for (int x =0; x<m_game->getUpcomingGridWidth(); x++){
         for (int y=0; y<m_game->getUpcomingGridHeight(); y++){
             m_upcomingObjects[{x,y}]=std::make_shared<GLSquare>();
-            m_upcomingObjects[{x,y}]->translateModelMatrix(QVector3D(x+14,y+4,0));
+            m_upcomingObjects[{x,y}]->translateModelMatrix(QVector3D(x+14,y+8,0));
         }
     }
 
@@ -42,9 +42,9 @@ GLView::GLView(std::unique_ptr<Game> game,QWidget *parent)
     m_bg->scale(20);
     m_bgImage=new QImage(QString(":images/background.jpg"));
 
-    m_bgUpcoming=std::make_shared<GLBackgroundRectangle>(0.5);
-    m_bgUpcoming->translateModelMatrix(QVector3D(12,4,-1));
-    m_bgUpcoming->scale(15);
+    m_bgUpcoming=std::make_shared<GLBackgroundRectangle>(0.6);
+    m_bgUpcoming->translateModelMatrix(QVector3D(12,6,-1));
+    m_bgUpcoming->scale(13);
     m_bgUpcomingImage=new QImage(QString(":images/background.jpg"));
 
 }

@@ -13,6 +13,7 @@ Game::Game() : nbUpcomingShapes(3),m_timer(new QTimer)
     m_gridHeight=20;
     m_upcomingGridWidth=MovableShape::getMaxShapeSize()+2;
     m_upcomingGridHeight=nbUpcomingShapes*MovableShape::getMaxShapeSize();
+    MovableShape::updateRandomShapesVec();
     m_currentShape=MovableShape::createMovableShape();
     m_currentShapePos={(m_gridWidth-m_currentShape->getSize())/2,m_gridHeight-m_currentShape->getVerticalSize()};
     putCurrentShape();
@@ -31,6 +32,7 @@ Game::Game() : nbUpcomingShapes(3),m_timer(new QTimer)
         m_upcomingShapes.push_back(MovableShape::createMovableShape());
     }
     updateUpcomingShapesGrid();
+
 
 }
 
