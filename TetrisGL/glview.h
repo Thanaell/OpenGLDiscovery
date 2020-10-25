@@ -74,6 +74,14 @@ private:
     QOpenGLVertexArrayObject m_bgUpcomingVao;
     QImage * m_bgUpcomingImage;
     QOpenGLTexture * m_bgUpcomingTexture;
+
+    std::shared_ptr<GLObject> m_scoreArea;
+    QOpenGLVertexArrayObject m_scoreAreaVao;
+    QImage * m_scoreAreaImage;
+    QOpenGLTexture * m_scoreAreaTexture;
+
+public slots:
+    void updateScoreArea();
 };
 
 #endif

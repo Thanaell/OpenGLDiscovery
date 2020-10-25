@@ -37,11 +37,13 @@ public:
     void generateNewMovableShape();
     void reset();
     bool isSquareInGrid(QPoint square);
+    int getScore(){return m_score;};
 public slots:
     void tick();
 private:
     Game();
     static Game * m_instance;
+    int m_score;
     int m_gridHeight;
     int m_gridWidth;
     int m_upcomingGridHeight;
@@ -56,7 +58,7 @@ private:
 
 
 signals:
-    void gameUpdated();
+    void scoreChanged();
 };
 
 #endif // GAME_H

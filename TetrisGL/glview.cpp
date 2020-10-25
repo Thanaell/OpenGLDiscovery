@@ -4,6 +4,7 @@
 #include <QCoreApplication>
 #include <math.h>
 #include <QOpenGLTexture>
+#include <QPainter>
 
 
 
@@ -12,6 +13,7 @@ GLView::GLView(std::unique_ptr<Game> game,QWidget *parent)
 
 {
     m_game=std::move(game);
+    QObject::connect(m_game.get(), &Game::scoreChanged,this, &GLView::updateScoreArea);
     setFocusPolicy(Qt::FocusPolicy::StrongFocus);
     for (int x =0; x<m_game->getGridWidth(); x++){
         for (int y=0; y<m_game->getGridHeight(); y++){
@@ -46,6 +48,30 @@ GLView::GLView(std::unique_ptr<Game> game,QWidget *parent)
     m_bgUpcoming->translateModelMatrix(QVector3D(12,6,-1));
     m_bgUpcoming->scale(13);
     m_bgUpcomingImage=new QImage(QString(":images/background.jpg"));
+
+    m_scoreArea=std::make_shared<GLBackgroundRectangle>(1.7);
+    m_scoreArea->translateModelMatrix(QVector3D(9,-1,-1));
+    m_scoreArea->scale(10);
+
+    m_scoreAreaImage=new QImage(QSize(400,300),QImage::Format_ARGB32);
+    m_scoreAreaImage->fill(qRgba(0,0,0,0));
+    QPainter painter(m_scoreAreaImage);
+    QPen pen(Qt::white);
+    pen.setWidth(100);
+    painter.setPen(pen);
+    painter.drawText(QRect(100,100,200,250),"SCORE : "+QString::number(m_game->getScore()));
+
+}
+
+void GLView::updateScoreArea(){
+    m_scoreAreaImage=new QImage(QSize(400,300),QImage::Format_ARGB32);
+    m_scoreAreaImage->fill(qRgba(0,0,0,0));
+    QPainter painter(m_scoreAreaImage);
+    QPen pen(Qt::white);
+    pen.setWidth(100);
+    painter.setPen(pen);
+    painter.drawText(QRect(100,100,200,250),"SCORE : "+QString::number(m_game->getScore()));
+    m_scoreAreaTexture=new QOpenGLTexture(m_scoreAreaImage->mirrored());
 
 }
 
@@ -139,6 +165,14 @@ void GLView::initializeGL()
     m_bgUpcoming->getVBO()->allocate( m_bgUpcoming->const_data(),m_bgUpcoming->count()*sizeof (GLfloat));
     setupVertexAttribs(m_bgUpcoming);
 
+    m_scoreAreaVao.create();
+    QOpenGLVertexArrayObject::Binder vaoBinder3(&m_scoreAreaVao);
+    //vaoBinder(&m_bgUpcomingVao);
+    m_scoreArea->getVBO()->create();
+    m_scoreArea->getVBO()->bind();
+    m_scoreArea->getVBO()->allocate( m_scoreArea->const_data(),m_scoreArea->count()*sizeof (GLfloat));
+    setupVertexAttribs(m_scoreArea);
+
     for (auto object : m_objects){
         m_vaos[object.first].create();
         QOpenGLVertexArrayObject::Binder vaoBinder(&m_vaos[object.first]);
@@ -162,6 +196,7 @@ void GLView::initializeGL()
     }
     m_bgTexture=new QOpenGLTexture(*m_bgImage);
     m_bgUpcomingTexture=new QOpenGLTexture(*m_bgUpcomingImage);
+    m_scoreAreaTexture=new QOpenGLTexture(m_scoreAreaImage->mirrored());
 
     m_program->release();
     int fps=100;
@@ -244,6 +279,17 @@ void GLView::paintGL()
     m_program->setUniformValue(m_viewMatLoc, viewMatrix);
     m_program->setUniformValue(m_projMatLoc, projMatrix);
     texture2->bind();
+    glDrawArrays(GL_TRIANGLES,0,6);
+
+    QOpenGLVertexArrayObject::Binder vaoBinder3(&m_scoreAreaVao);
+    QOpenGLTexture *texture3=m_scoreAreaTexture;
+    QMatrix4x4 modelMatrix3;
+    modelMatrix3=m_scoreArea->getModelMatrix();
+    m_program->bind();
+    m_program->setUniformValue(m_modelMatLoc, modelMatrix3);
+    m_program->setUniformValue(m_viewMatLoc, viewMatrix);
+    m_program->setUniformValue(m_projMatLoc, projMatrix);
+    texture3->bind();
     glDrawArrays(GL_TRIANGLES,0,6);
 
     m_program->release();

@@ -7,6 +7,7 @@ Game * Game::m_instance=nullptr;
 
 
 void Game::reset(){
+    m_score=0;
     MovableShape::updateRandomShapesVec();
     m_currentShape=MovableShape::createMovableShape();
     m_currentShapePos={(m_gridWidth-m_currentShape->getSize())/2,m_gridHeight-m_currentShape->getVerticalSize()};
@@ -134,6 +135,10 @@ int Game::checkLinesAndUpdate(std::set<int> lines){
         }
     }
 
+    m_score+=linesToUpdate.size();
+    if(linesToUpdate.size()!=0){
+        emit scoreChanged();
+    }
     return linesToUpdate.size();
 }
 
