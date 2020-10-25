@@ -29,6 +29,7 @@ void Game::reset(){
     }
     updateUpcomingShapesGrid();
     m_timer.start(1000);
+    m_timer.blockSignals(false);
 }
 
 Game::Game() : nbUpcomingShapes(3),m_timer(new QTimer)
@@ -158,7 +159,6 @@ void Game::moveCurrentShapeDown(){
         if (square.y()==0 || (!m_grid[{square.x(),square.y()-1}].second && m_grid[{square.x(),square.y()-1}].first!=ShapeType::EMPTY)){
             generateNewMovableShape();
             m_currentShapePos={(m_gridWidth-m_currentShape->getSize())/2,m_gridHeight-m_currentShape->getVerticalSize()};
-            putCurrentShape();
             hasCollided=true;
             break;
         }
@@ -171,12 +171,17 @@ void Game::moveCurrentShapeDown(){
             lines.insert(square.y());
         }
         int nbLinesDeleted=checkLinesAndUpdate(lines);
+        bool isGameOver=false;
         for (auto square : previousShapeSquares){
             if (square.y()-nbLinesDeleted>=m_gridHeight-1){
-                m_timer.stop();
+                m_timer.blockSignals(true);
                 emit gameOver(m_score);
+                isGameOver=true;
                 reset();
             }
+        }
+        if(!isGameOver){
+            putCurrentShape();
         }
     }
     else{
