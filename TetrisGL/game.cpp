@@ -196,16 +196,52 @@ Game * Game::instance(){
     }
 }
 
+void Game::rotateCurrentShapeClockwise(){
+    clearCurrentShape();
+    m_currentShape->rotateClockwise();
+    for (auto square:m_currentShape->getAbsoluteSquares(m_currentShapePos)){
+        if (!isSquareInGrid(square)){
+            m_currentShape->rotateAntiClockwise();
+            break;
+        }
+    }
+    putCurrentShape();
+}
+
+bool Game::isSquareInGrid(QPoint square){
+    if (square.x()>=m_gridWidth-1){
+        return false;
+    }
+    if (square.x()<=0){
+        return false;
+    }
+    if (square.y()>=m_gridHeight-1){
+        return false;
+    }
+    if (square.y()<=0){
+        return false;
+    }
+    return true;
+}
+
+void Game::rotateCurrentShapeAntiClockwise(){
+    clearCurrentShape();
+    m_currentShape->rotateAntiClockwise();
+    for (auto square:m_currentShape->getAbsoluteSquares(m_currentShapePos)){
+        if (!isSquareInGrid(square)){
+            m_currentShape->rotateClockwise();
+            break;
+        }
+    }
+    putCurrentShape();
+}
+
 void Game::reactToKey(int key){
     if (key==Qt::Key::Key_E){
-        clearCurrentShape();
-        m_currentShape->rotateClockwise();
-        putCurrentShape();
+        rotateCurrentShapeClockwise();
     }
     else if (key==Qt::Key::Key_A){
-        clearCurrentShape();
-        m_currentShape->rotateAntiClockwise();
-        putCurrentShape();
+        rotateCurrentShapeAntiClockwise();
     }
     else if (key==Qt::Key::Key_D){
         moveCurrentShapeRight();

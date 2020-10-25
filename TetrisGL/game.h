@@ -29,11 +29,14 @@ public:
     int getUpcomingGridWidth(){return m_upcomingGridWidth;};
     void moveCurrentShapeRight();
     void moveCurrentShapeLeft();
+    void rotateCurrentShapeClockwise();
+    void rotateCurrentShapeAntiClockwise();
     int checkLinesAndUpdate(std::set<int> lines);
     void removeLine(int line);
     void updateUpcomingShapesGrid();
     void generateNewMovableShape();
     void reset();
+    bool isSquareInGrid(QPoint square);
 public slots:
     void tick();
 private:
