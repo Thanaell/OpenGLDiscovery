@@ -8,11 +8,11 @@
 
 
 
-GLView::GLView(std::unique_ptr<Game> game,QWidget *parent)
+GLView::GLView(std::shared_ptr<Game> game,QWidget *parent)
     : QOpenGLWidget(parent), m_bg(nullptr)
 
 {
-    m_game=std::move(game);
+    m_game=game;
     QObject::connect(m_game.get(), &Game::scoreChanged,this, &GLView::updateScoreArea);
     setFocusPolicy(Qt::FocusPolicy::StrongFocus);
     for (int x =0; x<m_game->getGridWidth(); x++){

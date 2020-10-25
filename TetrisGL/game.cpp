@@ -8,6 +8,7 @@ Game * Game::m_instance=nullptr;
 
 void Game::reset(){
     m_score=0;
+    emit scoreChanged();
     MovableShape::updateRandomShapesVec();
     m_currentShape=MovableShape::createMovableShape();
     m_currentShapePos={(m_gridWidth-m_currentShape->getSize())/2,m_gridHeight-m_currentShape->getVerticalSize()};
@@ -27,6 +28,7 @@ void Game::reset(){
         m_upcomingShapes.push_back(MovableShape::createMovableShape());
     }
     updateUpcomingShapesGrid();
+    m_timer.start(1000);
 }
 
 Game::Game() : nbUpcomingShapes(3),m_timer(new QTimer)
@@ -36,7 +38,6 @@ Game::Game() : nbUpcomingShapes(3),m_timer(new QTimer)
     m_gridHeight=20;
     m_upcomingGridWidth=MovableShape::getMaxShapeSize()+2;
     m_upcomingGridHeight=nbUpcomingShapes*MovableShape::getMaxShapeSize();
-    reset();
 }
 
 void Game::updateUpcomingShapesGrid(){
@@ -69,7 +70,7 @@ void Game::putCurrentShape(){
 }
 
 void Game::run(){
-    m_timer.start(1000);
+    reset();
     QObject::connect(&m_timer,&QTimer::timeout, this, &Game::tick);
 }
 
@@ -172,7 +173,8 @@ void Game::moveCurrentShapeDown(){
         int nbLinesDeleted=checkLinesAndUpdate(lines);
         for (auto square : previousShapeSquares){
             if (square.y()-nbLinesDeleted>=m_gridHeight-1){
-                //TODO : game  over
+                m_timer.stop();
+                emit gameOver(m_score);
                 reset();
             }
         }
