@@ -11,6 +11,7 @@
 #include "game.h"
 #include "glsquare.h"
 #include "glbackgroundrectangle.h"
+#include "QOpenGLTexture"
 
 QT_FORWARD_DECLARE_CLASS(QOpenGLShaderProgram)
 
@@ -62,8 +63,10 @@ private:
     QTimer m_timer;
     int m_elapsed;
     std::map<std::pair<int,int>,std::shared_ptr<GLObject>> m_objects;
-    std::map<int,QImage*> imagesPerInt;
-    QImage m_bgImage;
+    std::map<int,QImage*> m_imagesPerShapeType;
+    std::map<int,QOpenGLTexture*> m_objectsTextures;
+    QImage * m_bgImage;
+    QOpenGLTexture * m_bgTexture;
 };
 
 #endif

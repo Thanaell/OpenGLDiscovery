@@ -19,20 +19,20 @@ GLView::GLView(std::unique_ptr<Game> game,QWidget *parent)
             m_objects[{x,y}]->translateModelMatrix(QVector3D(x,y,0));
         }
     }
-    imagesPerInt[ShapeType::EMPTY]=new QImage(50,50,QImage::Format_ARGB32 );
-    imagesPerInt[ShapeType::EMPTY]->fill(qRgba(0,0,0,0));
-    imagesPerInt[ShapeType::L]=new QImage(QString(":images/red.png"));
-    imagesPerInt[ShapeType::Z]=new QImage(QString(":images/green.png"));
-    imagesPerInt[ShapeType::S]=new QImage(QString(":images/blue.png"));
-    imagesPerInt[ShapeType::IL]=new QImage(QString(":images/purple.png"));
-    imagesPerInt[ShapeType::T]=new QImage(QString(":images/yellow.png"));
-    imagesPerInt[ShapeType::Bar]=new QImage(QString(":images/cyan.png"));
-    imagesPerInt[ShapeType::SQ]=new QImage(QString(":images/darkgreen.png"));
+    m_imagesPerShapeType[ShapeType::EMPTY]=new QImage(50,50,QImage::Format_ARGB32 );
+    m_imagesPerShapeType[ShapeType::EMPTY]->fill(qRgba(0,0,0,0));
+    m_imagesPerShapeType[ShapeType::L]=new QImage(QString(":images/red.png"));
+    m_imagesPerShapeType[ShapeType::Z]=new QImage(QString(":images/green.png"));
+    m_imagesPerShapeType[ShapeType::S]=new QImage(QString(":images/blue.png"));
+    m_imagesPerShapeType[ShapeType::IL]=new QImage(QString(":images/purple.png"));
+    m_imagesPerShapeType[ShapeType::T]=new QImage(QString(":images/yellow.png"));
+    m_imagesPerShapeType[ShapeType::Bar]=new QImage(QString(":images/cyan.png"));
+    m_imagesPerShapeType[ShapeType::SQ]=new QImage(QString(":images/darkgreen.png"));
 
     m_bg=std::make_shared<GLBackgroundRectangle>(static_cast<float>(m_game->getGridWidth())/static_cast<float>(m_game->getGridHeight()));
     m_bg->translateModelMatrix(QVector3D(0,0,-1));
     m_bg->scale(20);
-    m_bgImage=QImage(QString(":images/background.jpg"));
+    m_bgImage=new QImage(QString(":images/background.jpg"));
 
 }
 
@@ -127,6 +127,11 @@ void GLView::initializeGL()
         setupVertexAttribs(object.second);
     }
 
+    for (auto image : m_imagesPerShapeType){
+        m_objectsTextures[image.first]=new QOpenGLTexture(*image.second);
+    }
+    m_bgTexture=new QOpenGLTexture(*m_bgImage);
+
     m_program->release();
     int fps=100;
     m_timer.start(1000/fps);
@@ -161,10 +166,10 @@ void GLView::paintGL()
 
     for (auto &vao : m_vaos){
 
+
         QOpenGLVertexArrayObject::Binder vaoBinder(&vao.second);
 
-        QImage *image=imagesPerInt[m_game->getGrid()[vao.first].first];
-        QOpenGLTexture *texture=new QOpenGLTexture(*image);
+        QOpenGLTexture *texture=m_objectsTextures[m_game->getGrid()[vao.first].first];
 
         QMatrix4x4 modelMatrix;
         modelMatrix=m_objects[vao.first]->getModelMatrix();
@@ -181,7 +186,7 @@ void GLView::paintGL()
 
     QOpenGLVertexArrayObject::Binder vaoBinder(&m_bgVao);
 
-    QOpenGLTexture *texture=new QOpenGLTexture(m_bgImage);
+    QOpenGLTexture *texture=m_bgTexture;
 
     QMatrix4x4 modelMatrix;
     modelMatrix=m_bg->getModelMatrix();
