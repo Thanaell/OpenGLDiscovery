@@ -6,13 +6,7 @@
 Game * Game::m_instance=nullptr;
 
 
-Game::Game() : nbUpcomingShapes(3),m_timer(new QTimer)
-{
-    srand (static_cast <unsigned> (time(0)));
-    m_gridWidth=10;
-    m_gridHeight=20;
-    m_upcomingGridWidth=MovableShape::getMaxShapeSize()+2;
-    m_upcomingGridHeight=nbUpcomingShapes*MovableShape::getMaxShapeSize();
+void Game::reset(){
     MovableShape::updateRandomShapesVec();
     m_currentShape=MovableShape::createMovableShape();
     m_currentShapePos={(m_gridWidth-m_currentShape->getSize())/2,m_gridHeight-m_currentShape->getVerticalSize()};
@@ -32,8 +26,16 @@ Game::Game() : nbUpcomingShapes(3),m_timer(new QTimer)
         m_upcomingShapes.push_back(MovableShape::createMovableShape());
     }
     updateUpcomingShapesGrid();
+}
 
-
+Game::Game() : nbUpcomingShapes(3),m_timer(new QTimer)
+{
+    srand (static_cast <unsigned> (time(0)));
+    m_gridWidth=10;
+    m_gridHeight=20;
+    m_upcomingGridWidth=MovableShape::getMaxShapeSize()+2;
+    m_upcomingGridHeight=nbUpcomingShapes*MovableShape::getMaxShapeSize();
+    reset();
 }
 
 void Game::updateUpcomingShapesGrid(){
@@ -101,7 +103,7 @@ void Game::moveCurrentShapeLeft(){
     }
 }
 
-void Game::checkLinesAndUpdate(std::set<int> lines){
+int Game::checkLinesAndUpdate(std::set<int> lines){
     std::map<int,int> elementsPerLine;
     std::vector<int> linesToUpdate;
     for (int y : lines){
@@ -131,6 +133,8 @@ void Game::checkLinesAndUpdate(std::set<int> lines){
             }
         }
     }
+
+    return linesToUpdate.size();
 }
 
 void Game::generateNewMovableShape(){
@@ -160,7 +164,13 @@ void Game::moveCurrentShapeDown(){
             m_grid[{square.x(),square.y()}].second=false;
             lines.insert(square.y());
         }
-        checkLinesAndUpdate(lines);
+        int nbLinesDeleted=checkLinesAndUpdate(lines);
+        for (auto square : previousShapeSquares){
+            if (square.y()-nbLinesDeleted>=m_gridHeight-1){
+                //TODO : game  over
+                reset();
+            }
+        }
     }
     else{
         for (auto square : previousShapeSquares){

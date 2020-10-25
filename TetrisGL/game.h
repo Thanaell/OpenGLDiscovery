@@ -29,10 +29,11 @@ public:
     int getUpcomingGridWidth(){return m_upcomingGridWidth;};
     void moveCurrentShapeRight();
     void moveCurrentShapeLeft();
-    void checkLinesAndUpdate(std::set<int> lines);
+    int checkLinesAndUpdate(std::set<int> lines);
     void removeLine(int line);
     void updateUpcomingShapesGrid();
     void generateNewMovableShape();
+    void reset();
 public slots:
     void tick();
 private:
