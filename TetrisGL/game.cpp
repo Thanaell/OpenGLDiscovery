@@ -178,6 +178,7 @@ void Game::moveCurrentShapeDown(){
                 emit gameOver(m_score);
                 isGameOver=true;
                 reset();
+                break;
             }
         }
         if(!isGameOver){
