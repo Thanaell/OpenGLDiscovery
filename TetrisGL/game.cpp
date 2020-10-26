@@ -106,6 +106,12 @@ void Game::moveCurrentShapeLeft(){
     }
 }
 
+void Game::setGameSpeed(){
+    if (m_msBetweenTicks>200){
+        m_msBetweenTicks=1000-100*m_score;
+    }
+}
+
 int Game::checkLinesAndUpdate(std::set<int> lines){
     std::map<int,int> elementsPerLine;
     std::vector<int> linesToUpdate;
@@ -139,6 +145,9 @@ int Game::checkLinesAndUpdate(std::set<int> lines){
 
     m_score+=linesToUpdate.size();
     if(linesToUpdate.size()!=0){
+        m_timer.stop();
+        setGameSpeed();
+        m_timer.start(m_msBetweenTicks);
         emit scoreChanged();
     }
     return linesToUpdate.size();

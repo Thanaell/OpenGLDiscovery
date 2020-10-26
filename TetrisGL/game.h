@@ -39,12 +39,14 @@ public:
 
     bool isSquareInGrid(QPoint square);
     int getScore(){return m_score;};
+    void setGameSpeed();
 public slots:
     void tick();
     void reset();
 private:
     Game();
     static Game * m_instance;
+    int m_msBetweenTicks;
     int m_score;
     int m_gridHeight;
     int m_gridWidth;
