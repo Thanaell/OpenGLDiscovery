@@ -1,6 +1,6 @@
 #include "game.h"
 #include <QDebug>
-#include "tshape.h"
+#include "Shape/tshape.h"
 #include <set>
 
 Game * Game::m_instance=nullptr;
@@ -11,7 +11,7 @@ void Game::reset(){
     emit scoreChanged();
     MovableShape::updateRandomShapesVec();
     m_currentShape=MovableShape::createMovableShape();
-    m_currentShapePos={(m_gridWidth-m_currentShape->getSize())/2,m_gridHeight-m_currentShape->getVerticalSize()};
+    m_currentShapePos={(m_gridWidth-m_currentShape->getSize())/2,m_gridHeight-m_currentShape->getVerticalSize()-m_currentShape->getLowestYShape()};
     putCurrentShape();
     for (int x=0; x<m_gridWidth; x++){
         for (int y =0; y<m_gridHeight; y++){
@@ -167,7 +167,7 @@ bool Game::moveCurrentShapeDown(){
     for (auto square : m_currentShape->getAbsoluteSquares(m_currentShapePos)){
         if (square.y()==0 || (!m_grid[{square.x(),square.y()-1}].second && m_grid[{square.x(),square.y()-1}].first!=ShapeType::EMPTY)){
             generateNewMovableShape();
-            m_currentShapePos={(m_gridWidth-m_currentShape->getSize())/2,m_gridHeight-m_currentShape->getVerticalSize()};
+            m_currentShapePos={(m_gridWidth-m_currentShape->getSize())/2,m_gridHeight-m_currentShape->getVerticalSize()-m_currentShape->getLowestYShape()};
             hasCollided=true;
             break;
         }
@@ -242,13 +242,13 @@ bool Game::isSquareInGrid(QPoint square){
     if (square.x()>=m_gridWidth){
         return false;
     }
-    if (square.x()<=0){
+    if (square.x()<0){
         return false;
     }
     if (square.y()>=m_gridHeight){
         return false;
     }
-    if (square.y()<=0){
+    if (square.y()<0){
         return false;
     }
     return true;

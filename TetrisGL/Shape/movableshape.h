@@ -18,16 +18,13 @@ public:
     void rotateClockwise();
     void rotateAntiClockwise();
     virtual ShapeType getType() const = 0;
-    int getLowestY(int column);
+    int getLowestYColumn(int column);
+    int getLowestYShape();
     int getVerticalSize();
     std::vector<QPoint> getAbsoluteSquares(QPoint shapePosition);
     static int getMaxShapeSize();
     static void updateRandomShapesVec();
 
-protected:
-    int m_leftSpace;
-    int m_rightSpace;
-    int m_bottomSpace;
 private:
     static std::map<ShapeType,int> weightPerShape;
     static std::vector<ShapeType> randomShapesVec;

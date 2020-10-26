@@ -16,6 +16,7 @@ public:
 protected:
     std::vector<QPoint> m_squares;
     int m_shapeSize;
+    int m_gridSize;
 };
 
 #endif // SHAPE_H

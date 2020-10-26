@@ -15,7 +15,7 @@ std::map<ShapeType,int> MovableShape::weightPerShape{ {ShapeType::Bar,2}
                                                      ,{ShapeType::S,4}
                                                      ,{ShapeType::L,4}
                                                      ,{ShapeType::IL,4}
-                                                     ,{ShapeType::T,2}
+                                                     ,{ShapeType::T,3}
 };
 
 std::vector<ShapeType> MovableShape::randomShapesVec{};
@@ -54,7 +54,7 @@ std::vector<QPoint> MovableShape::getAbsoluteSquares(QPoint shapePosition){
     return result;
 }
 
-int MovableShape::getLowestY(int column){
+int MovableShape::getLowestYColumn(int column){
     QPoint lowestPoint(0,100);
     for (auto square : m_squares){
         if (square.x()==column && square.y()<lowestPoint.y()){
@@ -62,6 +62,17 @@ int MovableShape::getLowestY(int column){
         }
     }
     return lowestPoint.y();
+}
+
+int MovableShape::getLowestYShape(){
+    int lowestY=100;
+    for (int i=0; i<m_shapeSize;i++){
+        int result=getLowestYColumn(i);
+        if (result<lowestY){
+            lowestY=result;
+        }
+    }
+    return lowestY;
 }
 
 std::unique_ptr<MovableShape> MovableShape::createMovableShape(){

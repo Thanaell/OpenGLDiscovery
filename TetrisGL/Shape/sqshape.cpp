@@ -1,6 +1,6 @@
 #include "sqshape.h"
 
-SQShape::SQShape():MovableShape(3)
+SQShape::SQShape():MovableShape(2)
 {
     m_squares.push_back(QPoint(0,0));
     m_squares.push_back(QPoint(1,0));

@@ -9,8 +9,8 @@
 #include <QTimer>
 #include <memory>
 #include "game.h"
-#include "glsquare.h"
-#include "glbackgroundrectangle.h"
+#include "GLObject/glsquare.h"
+#include "GLObject/glbackgroundrectangle.h"
 #include "QOpenGLTexture"
 
 QT_FORWARD_DECLARE_CLASS(QOpenGLShaderProgram)
