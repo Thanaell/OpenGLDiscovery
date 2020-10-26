@@ -151,7 +151,7 @@ void Game::generateNewMovableShape(){
     updateUpcomingShapesGrid();
 }
 
-void Game::moveCurrentShapeDown(){
+bool Game::moveCurrentShapeDown(){
     bool hasCollided=false;
     QPoint previousShapePos=m_currentShapePos;
     std::vector<QPoint> previousShapeSquares=m_currentShape->getAbsoluteSquares(previousShapePos);
@@ -192,6 +192,14 @@ void Game::moveCurrentShapeDown(){
         clearCurrentShape();
         m_currentShapePos.setY(m_currentShapePos.y()-1);
         putCurrentShape();
+    }   
+    return hasCollided;
+}
+
+void Game::moveAllWayDown(){
+    bool isDown=false;
+    while (!isDown){
+        isDown=moveCurrentShapeDown();
     }
 }
 
@@ -222,13 +230,13 @@ void Game::rotateCurrentShapeClockwise(){
 }
 
 bool Game::isSquareInGrid(QPoint square){
-    if (square.x()>=m_gridWidth-1){
+    if (square.x()>=m_gridWidth){
         return false;
     }
     if (square.x()<=0){
         return false;
     }
-    if (square.y()>=m_gridHeight-1){
+    if (square.y()>=m_gridHeight){
         return false;
     }
     if (square.y()<=0){
@@ -264,5 +272,8 @@ void Game::reactToKey(int key){
     }
     else if (key==Qt::Key::Key_S){
         moveCurrentShapeDown();
+    }
+    else if (key==Qt::Key::Key_Z){
+        moveAllWayDown();
     }
 }

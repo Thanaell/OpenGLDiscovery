@@ -18,7 +18,8 @@ public:
     static Game * instance();
     void run();
     void reactToKey(int key);
-    void moveCurrentShapeDown();
+    bool moveCurrentShapeDown();
+    void moveAllWayDown();
     void clearCurrentShape();
     void putCurrentShape();
     std::map<std::pair<int,int>,std::pair<ShapeType,bool>> getGrid(){return m_grid;};
