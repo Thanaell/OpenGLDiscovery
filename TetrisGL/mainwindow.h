@@ -2,8 +2,10 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "glview.h"
+
 #include "game.h"
+
+class GLView;
 
 class MainWindow : public QMainWindow
 {
@@ -12,8 +14,8 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(std::shared_ptr<Game> game,QWidget *parent = nullptr);
     ~MainWindow();
-public slots:
-    void displayGameOver(int score);
+private slots:
+    void mDisplayGameOver(int score);
 private:
     GLView * m_GLView;
     std::shared_ptr<Game> m_game;

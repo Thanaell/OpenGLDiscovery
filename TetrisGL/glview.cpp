@@ -5,16 +5,29 @@
 #include <math.h>
 #include <QOpenGLTexture>
 #include <QPainter>
+#include "GLObject/glsquare.h"
+#include "GLObject/glbackgroundrectangle.h"
+#include "QOpenGLTexture"
 
-
-
+//-----------------------------------------------------
 GLView::GLView(std::shared_ptr<Game> game,QWidget *parent)
-    : QOpenGLWidget(parent), m_bg(nullptr)
-
+    : QOpenGLWidget(parent)
+    , m_game(game)
+    , m_bg(nullptr)
+    , m_bgUpcoming(nullptr)
+    , m_scoreArea(nullptr)
+    , m_bgImage(nullptr)
+    , m_bgUpcomingImage(nullptr)
+    , m_scoreAreaImage(nullptr)
+    , m_bgTexture(nullptr)
+    , m_bgUpcomingTexture(nullptr)
+    , m_scoreAreaTexture(nullptr)
+    , m_fps(100)
 {
-    m_game=game;
-    QObject::connect(m_game.get(), &Game::scoreChanged,this, &GLView::updateScoreArea);
     setFocusPolicy(Qt::FocusPolicy::StrongFocus);
+    QObject::connect(m_game.get(), &Game::scoreChanged,this, &GLView::mUpdateScoreArea);
+
+    //Creating a GLSquare for each element of grid
     for (int x =0; x<m_game->getGridWidth(); x++){
         for (int y=0; y<m_game->getGridHeight(); y++){
             m_objects[{x,y}]=std::make_shared<GLSquare>();
@@ -22,6 +35,7 @@ GLView::GLView(std::shared_ptr<Game> game,QWidget *parent)
         }
     }
 
+    //Creating a GLSquare for each element of upcomingGrid
     for (int x =0; x<m_game->getUpcomingGridWidth(); x++){
         for (int y=0; y<m_game->getUpcomingGridHeight(); y++){
             m_upcomingObjects[{x,y}]=std::make_shared<GLSquare>();
@@ -29,6 +43,7 @@ GLView::GLView(std::shared_ptr<Game> game,QWidget *parent)
         }
     }
 
+    //Initializing images (one for each shape + one for empty places of grid)
     m_imagesPerShapeType[ShapeType::EMPTY]=new QImage(50,50,QImage::Format_ARGB32 );
     m_imagesPerShapeType[ShapeType::EMPTY]->fill(qRgba(0,0,0,0));
     m_imagesPerShapeType[ShapeType::L]=new QImage(QString(":images/red.png"));
@@ -39,20 +54,22 @@ GLView::GLView(std::shared_ptr<Game> game,QWidget *parent)
     m_imagesPerShapeType[ShapeType::Bar]=new QImage(QString(":images/cyan.png"));
     m_imagesPerShapeType[ShapeType::SQ]=new QImage(QString(":images/darkgreen.png"));
 
+    //Background of game area
     m_bg=std::make_shared<GLBackgroundRectangle>(static_cast<float>(m_game->getGridWidth())/static_cast<float>(m_game->getGridHeight()));
     m_bg->translateModelMatrix(QVector3D(0,0,-1));
     m_bg->scale(20);
     m_bgImage=new QImage(QString(":images/background.jpg"));
 
+    //Background of upcoming shapes
     m_bgUpcoming=std::make_shared<GLBackgroundRectangle>(0.6);
     m_bgUpcoming->translateModelMatrix(QVector3D(12,6,-1));
     m_bgUpcoming->scale(13);
     m_bgUpcomingImage=new QImage(QString(":images/background.jpg"));
 
+    //Area where score is displayed
     m_scoreArea=std::make_shared<GLBackgroundRectangle>(1.7);
     m_scoreArea->translateModelMatrix(QVector3D(9,-1,-1));
     m_scoreArea->scale(10);
-
     m_scoreAreaImage=new QImage(QSize(400,300),QImage::Format_ARGB32);
     m_scoreAreaImage->fill(qRgba(0,0,0,0));
     QPainter painter(m_scoreAreaImage);
@@ -63,7 +80,9 @@ GLView::GLView(std::shared_ptr<Game> game,QWidget *parent)
 
 }
 
-void GLView::updateScoreArea(){
+//Draws current score on scoreArea by creating corresponding texture
+//-----------------------------------------------------
+void GLView::mUpdateScoreArea(){
     m_scoreAreaImage=new QImage(QSize(400,300),QImage::Format_ARGB32);
     m_scoreAreaImage->fill(qRgba(0,0,0,0));
     QPainter painter(m_scoreAreaImage);
@@ -75,21 +94,25 @@ void GLView::updateScoreArea(){
 
 }
 
+//-----------------------------------------------------
 GLView::~GLView()
 {
     cleanup();
 }
 
+//-----------------------------------------------------
 QSize GLView::minimumSizeHint() const
 {
     return QSize(50, 50);
 }
 
+//-----------------------------------------------------
 QSize GLView::sizeHint() const
 {
     return QSize(600, 1000);
 }
 
+//-----------------------------------------------------
 void GLView::cleanup()
 {
     if (m_program == nullptr)
@@ -100,6 +123,7 @@ void GLView::cleanup()
     doneCurrent();
 }
 
+//-----------------------------------------------------
 static const char *vertexShaderSource =
     "#version 150\n"
     "in vec2 texCoords;\n"
@@ -114,6 +138,7 @@ static const char *vertexShaderSource =
     "   texC=texCoords;\n"
     "}\n";
 
+//-----------------------------------------------------
 static const char *fragmentShaderSource =
     "#version 150\n"
     "uniform sampler2D myTex;\n"
@@ -128,6 +153,8 @@ static const char *fragmentShaderSource =
 
     "}\n";
 
+//Called once at launch
+//-----------------------------------------------------
 void GLView::initializeGL()
 {
     connect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &GLView::cleanup);
@@ -159,7 +186,6 @@ void GLView::initializeGL()
 
     m_bgUpcomingVao.create();
     QOpenGLVertexArrayObject::Binder vaoBinder2(&m_bgUpcomingVao);
-    //vaoBinder(&m_bgUpcomingVao);
     m_bgUpcoming->getVBO()->create();
     m_bgUpcoming->getVBO()->bind();
     m_bgUpcoming->getVBO()->allocate( m_bgUpcoming->const_data(),m_bgUpcoming->count()*sizeof (GLfloat));
@@ -167,7 +193,6 @@ void GLView::initializeGL()
 
     m_scoreAreaVao.create();
     QOpenGLVertexArrayObject::Binder vaoBinder3(&m_scoreAreaVao);
-    //vaoBinder(&m_bgUpcomingVao);
     m_scoreArea->getVBO()->create();
     m_scoreArea->getVBO()->bind();
     m_scoreArea->getVBO()->allocate( m_scoreArea->const_data(),m_scoreArea->count()*sizeof (GLfloat));
@@ -199,11 +224,12 @@ void GLView::initializeGL()
     m_scoreAreaTexture=new QOpenGLTexture(m_scoreAreaImage->mirrored());
 
     m_program->release();
-    int fps=100;
-    m_timer.start(1000/fps);
+    m_timer.start(1000/m_fps);
     QObject::connect(&m_timer, &QTimer::timeout, this, &GLView::mTimeOut);
 }
 
+//Sets up vertexes and textures for GLObject passed in argument
+//-----------------------------------------------------
 void GLView::setupVertexAttribs(std::shared_ptr<GLObject> object)
 {
     object->getVBO()->bind();
@@ -217,6 +243,8 @@ void GLView::setupVertexAttribs(std::shared_ptr<GLObject> object)
     object->getVBO()->release();
 }
 
+//Called each update
+//-----------------------------------------------------
 void GLView::paintGL()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -295,16 +323,18 @@ void GLView::paintGL()
     m_program->release();
 }
 
+//-----------------------------------------------------
 void GLView::resizeGL(int width, int height)
 {
 
 }
 
+//-----------------------------------------------------
 void GLView::mTimeOut(){
-    m_elapsed+=1;
     update();
 }
 
+//-----------------------------------------------------
 void GLView::keyPressEvent(QKeyEvent *event){
     m_game->reactToKey(event->key());
 }
