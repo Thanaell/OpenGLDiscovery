@@ -8,13 +8,10 @@
 #include <QVector2D>
 #include "globject.h"
 
+//GL Square, for each square of Tetris shapes
 class GLSquare : public GLObject
 {
 public:
     GLSquare();
-
-
-signals:
-
 };
 #endif // GLSQUARE_H

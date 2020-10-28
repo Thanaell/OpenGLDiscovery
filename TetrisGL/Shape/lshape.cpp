@@ -1,5 +1,6 @@
 #include "lshape.h"
 
+//---------------------------------
 LShape::LShape():MovableShape(3)
 {
     m_squares.push_back(QPoint(1,0));
@@ -8,6 +9,7 @@ LShape::LShape():MovableShape(3)
     m_squares.push_back(QPoint(2,0));
 }
 
+//---------------------------------
 ShapeType LShape::getType() const{
     return ShapeType::L;
 }

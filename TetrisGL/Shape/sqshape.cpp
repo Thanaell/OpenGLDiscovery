@@ -1,5 +1,6 @@
 #include "sqshape.h"
 
+//---------------------------------
 SQShape::SQShape():MovableShape(2)
 {
     m_squares.push_back(QPoint(0,0));
@@ -8,6 +9,7 @@ SQShape::SQShape():MovableShape(2)
     m_squares.push_back(QPoint(1,1));
 }
 
+//---------------------------------
 ShapeType SQShape::getType() const{
     return ShapeType::SQ;
 }

@@ -12,16 +12,19 @@ enum ShapeType{
 
 class MovableShape : public Shape
 {
-public:
-    static std::unique_ptr<MovableShape> createMovableShape();
+public:  
     MovableShape(int size);
+
+    virtual ShapeType getType() const = 0;
+    int getLowestYColumn(int column) const;
+    int getLowestYShape() const ;
+    int getVerticalSize() const;
+    std::vector<QPoint> getAbsoluteSquares(QPoint shapePosition) const;
+
     void rotateClockwise();
     void rotateAntiClockwise();
-    virtual ShapeType getType() const = 0;
-    int getLowestYColumn(int column);
-    int getLowestYShape();
-    int getVerticalSize();
-    std::vector<QPoint> getAbsoluteSquares(QPoint shapePosition);
+
+    static std::unique_ptr<MovableShape> createMovableShape();
     static int getMaxShapeSize();
     static void updateRandomShapesVec();
 

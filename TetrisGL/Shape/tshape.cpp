@@ -1,5 +1,6 @@
 #include "tshape.h"
 
+//---------------------------------
 TShape::TShape():MovableShape(3)
 {
     m_squares.push_back(QPoint(0,1));
@@ -8,6 +9,7 @@ TShape::TShape():MovableShape(3)
     m_squares.push_back(QPoint(2,1));
 }
 
+//---------------------------------
 ShapeType TShape::getType() const{
     return ShapeType::T;
 }

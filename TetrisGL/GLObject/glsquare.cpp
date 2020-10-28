@@ -1,5 +1,6 @@
 #include "glsquare.h"
 
+//------------------------------
 GLSquare::GLSquare(){
     std::vector<std::pair<QVector3D,QVector2D>> vertexes;
     vertexes.push_back({QVector3D(0,0,0),QVector2D(0,0)});

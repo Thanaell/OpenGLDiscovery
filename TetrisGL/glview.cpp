@@ -60,6 +60,8 @@ GLView::GLView(std::shared_ptr<Game> game,QWidget *parent)
     m_bg->scale(20);
     m_bgImage=new QImage(QString(":images/background.jpg"));
 
+    // WARNING : Display manually set up for nbUpcomingShapes=3 : will not be pretty otherwise !
+
     //Background of upcoming shapes
     m_bgUpcoming=std::make_shared<GLBackgroundRectangle>(0.6);
     m_bgUpcoming->translateModelMatrix(QVector3D(12,6,-1));

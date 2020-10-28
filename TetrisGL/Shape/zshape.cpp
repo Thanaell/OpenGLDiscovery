@@ -1,5 +1,6 @@
 #include "zshape.h"
 
+//---------------------------------
 ZShape::ZShape():MovableShape(3)
 {
     m_squares.push_back(QPoint(0,1));
@@ -8,6 +9,7 @@ ZShape::ZShape():MovableShape(3)
     m_squares.push_back(QPoint(2,0));
 }
 
+//---------------------------------
 ShapeType ZShape::getType() const{
     return ShapeType::Z;
 }

@@ -1,5 +1,6 @@
 #include "barshape.h"
 
+//---------------------------------
 BarShape::BarShape():MovableShape(4)
 {
     m_squares.push_back(QPoint(0,2));
@@ -9,6 +10,7 @@ BarShape::BarShape():MovableShape(4)
 
 }
 
+//---------------------------------
 ShapeType BarShape::getType() const{
     return ShapeType::Bar;
 }

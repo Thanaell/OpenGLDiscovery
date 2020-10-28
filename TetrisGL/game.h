@@ -10,7 +10,7 @@
 #include "QTimer"
 #include <set>
 
-
+//Singleton handling game grid and shapes
 class Game : public QObject
 {
     Q_OBJECT
@@ -18,34 +18,38 @@ public:
     static Game * instance();
     void run();
     void reactToKey(int key);
-    bool moveCurrentShapeDown();
-    void moveAllWayDown();
-    void clearCurrentShape();
-    void putCurrentShape();
+    void setGameSpeed();
+
     std::map<std::pair<int,int>,std::pair<ShapeType,bool>> getGrid(){return m_grid;};
     std::map<std::pair<int,int>,ShapeType> getUpcomingGrid(){return m_upcomingGrid;};
-    int getGridHeight(){return m_gridHeight;};
-    int getGridWidth(){return m_gridWidth;};
-    int getUpcomingGridHeight(){return m_upcomingGridHeight;};
-    int getUpcomingGridWidth(){return m_upcomingGridWidth;};
-    void moveCurrentShapeRight();
-    void moveCurrentShapeLeft();
-    void rotateCurrentShapeClockwise();
-    void rotateCurrentShapeAntiClockwise();
-    int checkLinesAndUpdate(std::set<int> lines);
-    void removeLine(int line);
-    void updateUpcomingShapesGrid();
-    void generateNewMovableShape();
+    int getGridHeight() const {return m_gridHeight;};
+    int getGridWidth() const {return m_gridWidth;};
+    int getUpcomingGridHeight() const{return m_upcomingGridHeight;};
+    int getUpcomingGridWidth() const {return m_upcomingGridWidth;};
+    int getScore() const {return m_score;};
 
-    bool isSquareInGrid(QPoint square);
-    int getScore(){return m_score;};
-    void setGameSpeed();
 public slots:
     void tick();
     void reset();
+
 private:
+
     Game();
+    bool mMoveCurrentShapeDown();
+    void mMoveCurrentShapeRight();
+    void mMoveCurrentShapeLeft();
+    void mUpdateUpcomingShapesGrid();
+    void mGenerateNewMovableShape();
+    void mMoveAllWayDown();
+    void mClearCurrentShape();
+    void mPutCurrentShape();
+    bool mIsSquareInGrid(QPoint square);
+    void mRotateCurrentShapeClockwise();
+    void mRotateCurrentShapeAntiClockwise();
+    int mCheckLinesAndUpdate(std::set<int> lines);
+
     static Game * m_instance;
+
     int m_msBetweenTicks;
     int m_score;
     int m_gridHeight;
@@ -59,7 +63,6 @@ private:
     std::deque<std::unique_ptr<MovableShape>> m_upcomingShapes;
     int nbUpcomingShapes;
     QTimer m_timer;
-
 
 signals:
     void scoreChanged();

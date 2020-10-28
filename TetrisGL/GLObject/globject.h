@@ -8,15 +8,16 @@
 #include <QMatrix4x4>
 #include <QVector2D>
 
+//Base class for GL Objects
 class GLObject
 {
 public:
     GLObject();
-    QOpenGLBuffer * getVBO() const {return m_vbo;};
     const GLfloat * const_data(){return m_data.constData();};
     void add(const QVector3D &v, const QVector2D &tex);
     int count() const { return m_count; }
     int vertexCount() const { return m_count / 6; }
+    QOpenGLBuffer * getVBO() const {return m_vbo;};
     QMatrix4x4 getModelMatrix() const {return m_modelMatrix;};
     void translateModelMatrix(QVector3D);
     void scale(int scaleFactor);
